@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的个人任务管理器</title>
     <style>
-        /* 密码保护界面样式 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -16,86 +15,16 @@
             line-height: 1.4;
             color: #333;
             background: #f8f9fa;
-        }
-        
-        .password-protection {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-        
-        .password-box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .password-title {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-        
-        .password-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #bdc3c7;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .password-input:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        
-        .password-hint {
-            color: #7f8c8d;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-        
-        .password-error {
-            color: #e74c3c;
-            margin: 10px 0;
-            display: none;
-        }
-        
-        .btn-primary {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .btn-primary:hover {
-            background: #2980b9;
-        }
-        
-        .hidden {
-            display: none;
-        }
-
-        /* 主应用样式 */
-        #mainApp {
             padding: 15px;
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+        h1 {
+            text-align: center;
+            margin: 15px 0;
+            color: #2c3e50;
+            font-size: 1.5em;
+        }
         .header {
             display: flex;
             justify-content: space-between;
@@ -108,111 +37,99 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
-        h1 {
-            color: #2c3e50;
-            font-size: 1.5em;
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
         }
-        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .btn-success:hover {
+            background: #219a52;
+        }
         .btn-edit {
             background: #f39c12;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 4px 8px;
+            border-radius: 3px;
             cursor: pointer;
-            font-size: 13px;
-            margin-right: 10px;
+            font-size: 11px;
+            white-space: nowrap;
         }
-        
-        .import-export {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .btn-edit:hover {
+            background: #e67e22;
         }
-        
-        .data-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        
-        .btn-sync {
-            background: #9b59b6;
+        .btn-danger {
+            background: #e74c3c;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 4px 8px;
+            border-radius: 3px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 11px;
+            white-space: nowrap;
         }
-        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-sort {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .btn-sort:hover {
+            background: #7f8c8d;
+        }
+        .btn-sort.active {
+            background: #3498db;
+        }
+
         .sort-buttons {
             display: flex;
             gap: 8px;
             margin-bottom: 15px;
             flex-wrap: wrap;
         }
-        
-        .btn-sort {
-            background: #95a5a6;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        
-        .btn-sort.active {
-            background: #3498db;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .stat-number {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #3498db;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-top: 4px;
-        }
-        
+
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 12px;
             margin-bottom: 20px;
         }
-        
         .project-card {
             background: white;
             padding: 15px;
             border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             border-left: 3px solid #3498db;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-bottom: 40px;
         }
-        
         .project-header {
             display: flex;
             justify-content: space-between;
@@ -220,7 +137,6 @@
             margin-bottom: 8px;
             gap: 8px;
         }
-        
         .project-title {
             font-size: 14px;
             font-weight: bold;
@@ -228,7 +144,6 @@
             line-height: 1.3;
             flex: 1;
         }
-        
         .project-description {
             color: #7f8c8d;
             font-size: 12px;
@@ -236,24 +151,25 @@
             line-height: 1.3;
             font-style: italic;
         }
-        
         .project-meta {
             color: #7f8c8d;
             font-size: 12px;
             margin-bottom: 8px;
             line-height: 1.3;
         }
-        
+        .time-display {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 11px;
+        }
         .next-time {
             color: #e74c3c;
             font-weight: bold;
             font-size: 11px;
         }
-        
         .progress-container {
             margin: 10px 0;
         }
-        
         .progress-bar {
             width: 100%;
             height: 16px;
@@ -261,44 +177,54 @@
             border-radius: 8px;
             overflow: hidden;
         }
-        
         .progress {
             height: 100%;
             background: linear-gradient(90deg, #27ae60, #2ecc71);
             transition: width 0.3s ease;
         }
-        
         .progress-text {
             text-align: center;
             font-size: 11px;
             color: #7f8c8d;
             margin-top: 3px;
         }
-        
         .project-actions {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin: 10px 0;
         }
-        
-        .btn-success {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
         .empty-state {
             text-align: center;
             padding: 40px;
             color: #7f8c8d;
             grid-column: 1 / -1;
         }
-        
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-card {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
         .overlay {
             display: none;
             position: fixed;
@@ -306,7 +232,6 @@
             background: rgba(0,0,0,0.5);
             z-index: 999;
         }
-        
         .form-container {
             display: none;
             position: fixed;
@@ -323,18 +248,15 @@
             max-height: 85vh;
             overflow-y: auto;
         }
-        
         .form-title {
             margin-bottom: 15px;
             color: #2c3e50;
             text-align: center;
             font-size: 1.2em;
         }
-        
         .form-group {
             margin: 10px 0;
         }
-        
         label {
             display: block;
             margin-bottom: 4px;
@@ -342,7 +264,6 @@
             color: #34495e;
             font-size: 13px;
         }
-        
         input, select, textarea {
             width: 100%;
             padding: 8px;
@@ -350,12 +271,14 @@
             border-radius: 4px;
             font-size: 13px;
         }
-        
         textarea {
             resize: vertical;
             min-height: 60px;
         }
-        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
         .form-actions {
             display: flex;
             gap: 8px;
@@ -363,28 +286,187 @@
             margin-top: 20px;
             flex-wrap: wrap;
         }
-        
         .form-section {
             background: #f8f9fa;
             padding: 12px;
             border-radius: 4px;
             margin: 12px 0;
         }
-        
         .form-section-title {
             font-size: 14px;
             color: #2c3e50;
             margin-bottom: 8px;
         }
-        
-        .qr-code {
-            text-align: center;
-            margin: 15px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
+        small {
+            color: #7f8c8d;
+            font-size: 11px;
         }
-        
+
+        .reset-badge {
+            background: #3498db;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-right: 8px;
+        }
+
+        /* 用户标签样式 - 底部导航形式 */
+        .user-tags {
+            display: flex;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            border-radius: 0 0 6px 6px;
+            padding: 6px;
+            gap: 1px;
+        }
+        .user-tag {
+            flex: 1;
+            background: #ecf0f1;
+            color: #7f8c8d;
+            padding: 6px 4px;
+            font-size: 10px;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+            transition: all 0.2s ease;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-tag:hover {
+            background: #d5dbdb;
+        }
+        .user-tag.active {
+            background: #3498db;
+            color: white;
+        }
+        .user-tag:first-child {
+            border-radius: 0 0 0 6px;
+        }
+        .user-tag:last-child {
+            border-radius: 0 0 6px 0;
+        }
+
+        .tag-input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .tag-input {
+            flex: 1;
+            padding: 6px;
+            font-size: 12px;
+        }
+        .add-tag-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .tag-list {
+            margin-top: 8px;
+        }
+        .tag-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            background: #f8f9fa;
+            margin: 2px 0;
+            border-radius: 4px;
+        }
+        .remove-tag {
+            color: #e74c3c;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            z-index: 1001;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .toast.success {
+            background: #27ae60;
+        }
+        .toast.info {
+            background: #3498db;
+        }
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        /* 登录表单样式 */
+        .login-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 1001;
+            width: 95%;
+            max-width: 400px;
+        }
+        .login-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .login-btn:hover {
+            background: #2980b9;
+        }
+        .login-error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .projects-grid {
                 grid-template-columns: 1fr;
@@ -397,43 +479,31 @@
                 width: 98%;
                 padding: 15px;
             }
+            .toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 密码保护界面 -->
-    <div class="password-protection" id="passwordProtection">
-        <div class="password-box">
-            <h2 class="password-title">🔒 个人任务管理器</h2>
-            <p>请输入访问密码</p>
-            <input type="password" class="password-input" id="passwordInput" placeholder="输入密码..." onkeypress="handlePasswordKeypress(event)">
-            <div class="password-error" id="passwordError">密码错误，请重试</div>
-            <button class="btn-primary" onclick="checkPassword()">进入系统</button>
-            <div class="password-hint">
-                首次使用密码：123456（进入后请及时修改）
-            </div>
-        </div>
+    <!-- 登录表单 -->
+    <div class="login-container" id="login-container">
+        <h2 class="login-title">任务管理器登录</h2>
+        <input type="password" id="password-input" class="login-input" placeholder="请输入访问密码">
+        <div class="login-error" id="login-error">密码错误，请重试</div>
+        <button class="login-btn" onclick="checkPassword()">登录</button>
     </div>
 
-    <!-- 主应用界面 -->
-    <div id="mainApp" class="hidden">
+    <!-- 应用内容 -->
+    <div id="app-content" style="display:none;">
         <div class="header">
             <h1>我的个人任务管理器</h1>
-            <div>
-                <button class="btn-edit" onclick="changePassword()">更改密码</button>
-                <button class="btn-primary" onclick="showProjectForm()">+ 添加新项目</button>
-            </div>
+            <button class="btn-primary" onclick="showProjectForm()">+ 添加新项目</button>
         </div>
 
-        <div class="import-export">
-            <h3>📱 数据管理</h3>
-            <div class="data-actions">
-                <button class="btn-sync" onclick="exportData()">📤 导出数据</button>
-                <button class="btn-sync" onclick="importData()">📥 导入数据</button>
-                <button class="btn-sync" onclick="showQRCode()">📱 手机访问</button>
-            </div>
-            <div id="qr-container"></div>
-        </div>
+        <div id="toast" class="toast"></div>
 
         <div class="sort-buttons">
             <button class="btn-sort active" onclick="changeSortMode('default')" id="sort-default">📅 默认排序</button>
@@ -442,9 +512,9 @@
         </div>
 
         <div class="stats" id="stats-container"></div>
+
         <div class="projects-grid" id="project-list"></div>
 
-        <!-- 表单弹窗 -->
         <div class="overlay" id="form-overlay" onclick="hideProjectForm()"></div>
         <div class="form-container" id="project-form-container">
             <h3 class="form-title" id="form-title">添加新项目</h3>
@@ -459,6 +529,19 @@
                 <div class="form-group">
                     <label for="project-description">项目介绍（可选）</label>
                     <textarea id="project-description" placeholder="简要描述这个项目的具体内容..."></textarea>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">用户标签设置</div>
+                    <div class="form-group">
+                        <label>用户标签（用于区分不同账户）</label>
+                        <div class="tag-input-group">
+                            <input type="text" id="new-tag" class="tag-input" placeholder="输入标签名称" maxlength="10">
+                            <button type="button" class="add-tag-btn" onclick="addUserTag()">添加</button>
+                        </div>
+                        <div class="tag-list" id="tag-list"></div>
+                        <small>添加多个标签来区分不同账户的相同任务</small>
+                    </div>
                 </div>
                 
                 <div class="form-section">
@@ -512,6 +595,16 @@
                         <label for="project-custom-total">每月固定次数</label>
                         <input type="number" id="project-custom-total" min="1" value="1">
                     </div>
+
+                    <div class="form-group">
+                        <label for="project-reset">进度重置方式</label>
+                        <select id="project-reset">
+                            <option value="monthly">每月1日自动重置</option>
+                            <option value="manual">手动重置</option>
+                            <option value="none">不重置</option>
+                        </select>
+                        <small>每月重置：每月1日0点自动清空进度</small>
+                    </div>
                 </div>
 
                 <div class="form-section">
@@ -519,87 +612,316 @@
                     <div class="form-group">
                         <label for="project-end">结束日期（可选）</label>
                         <input type="date" id="project-end">
-                        <small style="color:#666;">不填则永久有效，到期后自动隐藏</small>
+                        <small>不填则永久有效，到期后自动隐藏</small>
                     </div>
                 </div>
                 
                 <div class="form-actions">
+                    <button type="button" class="btn-danger" id="delete-btn" style="display:none;" onclick="deleteProject()">删除项目</button>
                     <button type="button" class="btn-edit" onclick="hideProjectForm()">取消</button>
                     <button type="submit" class="btn-success">保存项目</button>
-                    <button type="button" class="btn-sync" id="delete-btn" style="display:none; background:#e74c3c;" onclick="deleteProject()">删除项目</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // 密码管理
-        const PASSWORD_KEY = 'task_manager_password';
-        const DEFAULT_PASSWORD = '123456';
-        
-        function checkPassword() {
-            const input = document.getElementById('passwordInput').value;
-            const savedPassword = localStorage.getItem(PASSWORD_KEY);
+        // Airtable 配置
+        const AIRTABLE_CONFIG = {
+            BASE_ID: 'appQ3lMrE7D8COXg8',
+            API_KEY: 'patWnWNrI0X22Th53.08624da32545cf7efb372f9ecd57b5d4d72783c8b63d3385d87d49b1d71581e1',
+            PROJECTS_TABLE: 'projects',
+            CONFIG_TABLE: 'config'
+        };
+
+        // 全局变量
+        let projects = [];
+        let currentSortMode = 'default';
+        let userTags = [];
+        let isAuthenticated = false;
+
+        // Airtable API 函数
+        async function airtableRequest(endpoint, options = {}) {
+            const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.BASE_ID}/${endpoint}`;
+            console.log('Airtable Request URL:', url);
             
-            if (!savedPassword) {
-                const passwordToSave = input || DEFAULT_PASSWORD;
-                localStorage.setItem(PASSWORD_KEY, btoa(passwordToSave));
-                showMainApp();
-                return;
-            }
-            
-            if (btoa(input) === savedPassword) {
-                showMainApp();
-            } else {
-                document.getElementById('passwordError').style.display = 'block';
-                document.getElementById('passwordInput').value = '';
-            }
-        }
-        
-        function handlePasswordKeypress(event) {
-            if (event.key === 'Enter') checkPassword();
-        }
-        
-        function showMainApp() {
-            document.getElementById('passwordProtection').style.display = 'none';
-            document.getElementById('mainApp').classList.remove('hidden');
-            initializeApp();
-        }
-        
-        function changePassword() {
-            const newPassword = prompt('请输入新密码：');
-            if (newPassword && newPassword.length >= 4) {
-                localStorage.setItem(PASSWORD_KEY, btoa(newPassword));
-                alert('密码修改成功！');
-            } else if (newPassword) {
-                alert('密码长度至少4位！');
+            const headers = {
+                'Authorization': `Bearer ${AIRTABLE_CONFIG.API_KEY}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            try {
+                const response = await fetch(url, { ...options, headers });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Airtable API error response:', errorText);
+                    throw new Error(`Airtable API error: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Airtable request failed:', error);
+                showToast('网络请求失败: ' + error.message, 'error');
+                throw error;
             }
         }
 
-        // 应用主逻辑
-        let projects = JSON.parse(localStorage.getItem('projects')) || [];
-        let currentSortMode = 'default';
+        // 密码验证函数
+        async function checkPassword() {
+            const passwordInput = document.getElementById('password-input');
+            const password = passwordInput.value.trim();
+            const errorElement = document.getElementById('login-error');
+
+            if (!password) {
+                errorElement.textContent = '请输入密码';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            try {
+                // 从 Airtable 获取密码
+                const result = await airtableRequest(`${AIRTABLE_CONFIG.CONFIG_TABLE}?filterByFormula={key}='password'`);
+                
+                if (result.records.length === 0) {
+                    // 第一次使用，设置密码
+                    await airtableRequest(AIRTABLE_CONFIG.CONFIG_TABLE, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            records: [{
+                                fields: {
+                                    key: 'password',
+                                    value: password,
+                                    type: 'auth'
+                                }
+                            }]
+                        })
+                    });
+                    localStorage.setItem('app_password', password);
+                    showAppContent();
+                } else {
+                    const storedPassword = result.records[0].fields.value;
+                    if (password === storedPassword) {
+                        localStorage.setItem('app_password', password);
+                        showAppContent();
+                    } else {
+                        errorElement.textContent = '密码错误，请重试';
+                        errorElement.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                errorElement.textContent = '验证失败: ' + error.message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function showAppContent() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            isAuthenticated = true;
+            loadData();
+        }
+
+        // 数据加载函数
+        async function loadData() {
+            try {
+                showToast('正在加载数据...', 'info');
+                
+                // 加载项目数据
+                const projectsResult = await airtableRequest(AIRTABLE_CONFIG.PROJECTS_TABLE);
+                projects = projectsResult.records.map(record => {
+                    const fields = record.fields;
+                    return {
+                        id: record.id,
+                        name: fields.name || '',
+                        description: fields.description || '',
+                        type: fields.type || 'daily',
+                        rule: typeof fields.rule === 'string' ? JSON.parse(fields.rule) : (fields.rule || { hour: '10:00' }),
+                        resetType: fields.resetType || 'monthly',
+                        endDate: fields.endDate || null,
+                        userTags: typeof fields.userTags === 'string' ? JSON.parse(fields.userTags) : (fields.userTags || ['默认']),
+                        tagProgress: typeof fields.tagProgress === 'string' ? JSON.parse(fields.tagProgress) : (fields.tagProgress || {}),
+                        currentTag: fields.currentTag || '默认',
+                        createdAt: fields.createdAt || new Date().toISOString()
+                    };
+                });
+                
+                showToast(`加载了 ${projects.length} 个项目`, 'success', 2000);
+                renderProjects();
+            } catch (error) {
+                showToast('数据加载失败: ' + error.message, 'error');
+                projects = [];
+                renderProjects();
+            }
+        }
+
+        // 数据保存函数
+        async function saveData() {
+            try {
+                showToast('正在同步数据...', 'info');
+                
+                // 简化的保存逻辑
+                for (const project of projects) {
+                    const fields = {
+                        name: project.name,
+                        description: project.description || '',
+                        type: project.type,
+                        rule: JSON.stringify(project.rule),
+                        resetType: project.resetType,
+                        endDate: project.endDate,
+                        userTags: JSON.stringify(project.userTags),
+                        tagProgress: JSON.stringify(project.tagProgress),
+                        currentTag: project.currentTag
+                    };
+                    
+                    if (project.id && project.id.startsWith('rec')) {
+                        // 更新现有记录
+                        await airtableRequest(`${AIRTABLE_CONFIG.PROJECTS_TABLE}/${project.id}`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({ fields })
+                        });
+                    } else {
+                        // 创建新记录
+                        const result = await airtableRequest(AIRTABLE_CONFIG.PROJECTS_TABLE, {
+                            method: 'POST',
+                            body: JSON.stringify({ records: [{ fields }] })
+                        });
+                        project.id = result.records[0].id;
+                    }
+                }
+                
+                showToast('数据同步完成', 'success');
+                return true;
+            } catch (error) {
+                showToast('数据保存失败: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // 删除项目函数
+        async function deleteProject() {
+            const id = document.getElementById('project-id').value;
+            if (id && confirm('确定删除？')) {
+                try {
+                    const project = projects.find(p => p.id === id);
+                    projects = projects.filter(p => p.id !== id);
+                    
+                    // 从 Airtable 删除
+                    await airtableRequest(`${AIRTABLE_CONFIG.PROJECTS_TABLE}/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    hideProjectForm();
+                    renderProjects();
+                    showToast(`已删除: ${project.name}`, 'info');
+                } catch (error) {
+                    showToast('删除失败', 'error');
+                }
+            }
+        }
+
+        // 工具函数
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), duration);
+        }
+
+        function addUserTag() {
+            const tagInput = document.getElementById('new-tag');
+            const tagName = tagInput.value.trim();
+            if (!tagName) return showToast('请输入标签名称', 'error');
+            if (userTags.includes(tagName)) return showToast('标签已存在', 'error');
+            userTags.push(tagName);
+            renderTagList();
+            tagInput.value = '';
+        }
+
+        function removeUserTag(tagName) {
+            userTags = userTags.filter(tag => tag !== tagName);
+            renderTagList();
+        }
+
+        function renderTagList() {
+            const tagList = document.getElementById('tag-list');
+            tagList.innerHTML = userTags.map(tag => `
+                <div class="tag-item">
+                    <span>${tag}</span>
+                    <span class="remove-tag" onclick="removeUserTag('${tag}')">×</span>
+                </div>
+            `).join('');
+        }
+
+        function switchUserTag(projectId, tagName) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.currentTag = tagName;
+                renderProjects();
+                saveData();
+            }
+        }
+
+        function completeProjectForTag(projectId, tagName) {
+            const project = projects.find(p => p.id === projectId);
+            if (project && project.tagProgress) {
+                project.tagProgress[tagName] = (project.tagProgress[tagName] || 0) + 1;
+                showToast(`已完成: ${project.name} (${tagName})`, 'success');
+                renderProjects();
+                saveData();
+            }
+        }
+
+        function generateUniqueId() {
+            return Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // 项目显示相关函数
+        function checkMonthlyReset() {
+            const now = new Date();
+            if (now.getDate() === 1) {
+                let resetCount = 0;
+                projects.forEach(project => {
+                    if (project.resetType === 'monthly' && project.tagProgress) {
+                        Object.keys(project.tagProgress).forEach(tag => {
+                            if (project.tagProgress[tag] > 0) {
+                                project.tagProgress[tag] = 0;
+                                resetCount++;
+                            }
+                        });
+                    }
+                });
+                if (resetCount > 0) {
+                    saveData();
+                    showToast(`自动重置了 ${resetCount} 个用户标签的进度`, 'info');
+                }
+            }
+        }
 
         function calculateNextScheduledTime(project) {
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const targetHour = project.rule.hour;
+            const [hours, minutes] = project.rule.hour.split(':').map(Number);
 
             if (project.type === 'daily') {
-                let nextDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), targetHour, 0, 0);
+                let nextDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
                 if (nextDate < now) nextDate.setDate(nextDate.getDate() + 1);
                 return nextDate.getTime();
             } else if (project.type === 'weekly') {
                 const targetDay = project.rule.weekday;
                 let nextDate = new Date(today);
                 let dayDelta = targetDay - today.getDay();
-                if (dayDelta < 0 || (dayDelta === 0 && now.getHours() >= targetHour)) dayDelta += 7;
+                if (dayDelta < 0 || (dayDelta === 0 && (now.getHours() > hours || (now.getHours() === hours && now.getMinutes() >= minutes)))) {
+                    dayDelta += 7;
+                }
                 nextDate.setDate(today.getDate() + dayDelta);
-                return new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), targetHour, 0, 0).getTime();
+                return new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), hours, minutes, 0).getTime();
             } else {
                 const targetDay = project.rule.dayOfMonth || 1;
-                let nextDate = new Date(today.getFullYear(), today.getMonth(), targetDay, targetHour, 0, 0);
-                if (nextDate < now) nextDate = new Date(today.getFullYear(), today.getMonth() + 1, targetDay, targetHour, 0, 0);
+                let nextDate = new Date(today.getFullYear(), today.getMonth(), targetDay, hours, minutes, 0);
+                if (nextDate < now) {
+                    nextDate = new Date(today.getFullYear(), today.getMonth() + 1, targetDay, hours, minutes, 0);
+                }
                 return nextDate.getTime();
             }
         }
@@ -609,8 +931,9 @@
             const year = now.getFullYear();
             const month = now.getMonth();
             
-            if (project.type === 'daily') return new Date(year, month + 1, 0).getDate();
-            else if (project.type === 'weekly') {
+            if (project.type === 'daily') {
+                return new Date(year, month + 1, 0).getDate();
+            } else if (project.type === 'weekly') {
                 const targetDay = project.rule.weekday;
                 const date = new Date(year, month, 1);
                 let count = 0;
@@ -619,25 +942,51 @@
                     date.setDate(date.getDate() + 1);
                 }
                 return count;
-            } else return 1;
+            } else {
+                return 1;
+            }
         }
 
         function calculateProgress(project) {
-            let denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
-            const progress = (project.completed / denominator) * 100;
+            const currentTag = project.currentTag || project.userTags[0];
+            const completed = project.tagProgress ? (project.tagProgress[currentTag] || 0) : 0;
+            const denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
+            const progress = (completed / denominator) * 100;
             return {
                 progress: progress > 100 ? 100 : progress,
-                text: `${project.completed} / ${denominator}`,
-                denominator: denominator
+                text: `${completed} / ${denominator}`,
+                denominator: denominator,
+                completed: completed
             };
         }
 
+        function calculateTotalStats() {
+            let totalCompleted = 0;
+            let totalTasks = 0;
+
+            projects.forEach(project => {
+                if (!checkIsExpired(project)) {
+                    const denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
+                    if (project.tagProgress) {
+                        Object.values(project.tagProgress).forEach(completed => {
+                            totalCompleted += completed;
+                        });
+                    }
+                    if (project.userTags) {
+                        totalTasks += denominator * project.userTags.length;
+                    }
+                }
+            });
+
+            return { totalCompleted, totalTasks };
+        }
+
         function checkIsExpired(project) {
-            if (!project.endDate) return false;
-            return new Date() > new Date(project.endDate);
+            return project.endDate ? new Date() > new Date(project.endDate) : false;
         }
 
         function getSortedProjects() {
+            checkMonthlyReset();
             const activeProjects = projects.filter(p => !checkIsExpired(p));
             activeProjects.forEach(p => {
                 p.nextScheduledTime = calculateNextScheduledTime(p);
@@ -674,15 +1023,32 @@
         function renderStats() {
             const container = document.getElementById('stats-container');
             const activeProjects = projects.filter(p => !checkIsExpired(p));
-            const totalProgress = activeProjects.reduce((sum, project) => sum + (calculateProgress(project).progress / 100) * calculateProgress(project).denominator, 0);
-            const totalTasks = activeProjects.reduce((sum, project) => sum + calculateProgress(project).denominator, 0);
-            const completionRate = totalTasks > 0 ? (totalProgress / totalTasks * 100).toFixed(1) : 0;
+            const { totalCompleted, totalTasks } = calculateTotalStats();
+            
+            const totalProgress = activeProjects.reduce((sum, project) => {
+                const progress = calculateProgress(project);
+                return sum + (progress.progress / 100) * progress.denominator;
+            }, 0);
+            
+            const completionRate = totalTasks > 0 ? (totalCompleted / totalTasks * 100).toFixed(1) : 0;
 
             container.innerHTML = `
-                <div class="stat-card"><div class="stat-number">${activeProjects.length}</div><div class="stat-label">活跃项目</div></div>
-                <div class="stat-card"><div class="stat-number">${completionRate}%</div><div class="stat-label">完成率</div></div>
-                <div class="stat-card"><div class="stat-number">${Math.round(totalProgress)}</div><div class="stat-label">已完成</div></div>
-                <div class="stat-card"><div class="stat-number">${totalTasks}</div><div class="stat-label">总任务</div></div>
+                <div class="stat-card">
+                    <div class="stat-number">${activeProjects.length}</div>
+                    <div class="stat-label">活跃项目</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${completionRate}%</div>
+                    <div class="stat-label">本月完成率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalCompleted}</div>
+                    <div class="stat-label">已完成次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalTasks}</div>
+                    <div class="stat-label">总任务数</div>
+                </div>
             `;
         }
 
@@ -698,52 +1064,82 @@
 
             container.innerHTML = sortedProjects.map(project => {
                 const nextTime = new Date(project.nextScheduledTime);
+                const [hours, minutes] = project.rule.hour.split(':');
+                
+                let timeDisplay = '';
+                if (project.type === 'daily') {
+                    timeDisplay = `每日 <span class="time-display">${hours}:${minutes.padStart(2, '0')}</span>`;
+                } else if (project.type === 'weekly') {
+                    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                    timeDisplay = `每周<span class="time-display">${weekdays[project.rule.weekday]} ${hours}:${minutes.padStart(2, '0')}</span>`;
+                } else {
+                    timeDisplay = `每月<span class="time-display">${project.rule.dayOfMonth}日 ${hours}:${minutes.padStart(2, '0')}</span>`;
+                }
+
                 const timeString = nextTime.toLocaleString('zh-CN', { 
-                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', weekday: 'short'
+                    month: 'short', 
+                    day: 'numeric',
+                    weekday: 'short'
                 });
-                const frequencyText = project.type === 'daily' ? '每日' : project.type === 'weekly' ? '每周' : '每月';
+
                 const isCompleted = project.progressInfo.progress >= 100;
+                const sameNameCount = projects.filter(p => p.name === project.name).length;
+                const nameSuffix = sameNameCount > 1 ? ` #${projects.filter(p => p.name === project.name).findIndex(p => p.id === project.id) + 1}` : '';
+                const currentTag = project.currentTag || project.userTags[0];
 
                 return `
                     <div class="project-card" style="opacity: ${isCompleted ? '0.8' : '1'}; border-left-color: ${isCompleted ? '#95a5a6' : '#3498db'}">
                         <div class="project-header">
-                            <div class="project-title">${project.name} ${isCompleted ? '✅' : ''}</div>
-                            <button class="btn-edit" onclick="showProjectForm(${project.id})">编辑</button>
+                            <div class="project-title">
+                                ${project.resetType === 'monthly' ? '<span class="reset-badge">每月重置</span>' : ''}
+                                ${project.name}${nameSuffix} ${isCompleted ? '✅' : ''}
+                            </div>
+                            <button class="btn-edit" onclick="showProjectForm('${project.id}')">编辑</button>
                         </div>
-                        ${project.description ? `<div class="project-description">${project.description}</div>` : ''}
+                        <div class="project-description">${project.description || '暂无介绍'}</div>
                         <div class="project-meta">
-                            <div>${frequencyText} ${project.rule.hour}:00 | 下次: <span class="next-time">${timeString}</span></div>
-                            ${project.endDate ? `<div>截止: ${project.endDate}</div>` : ''}
+                            <div>${timeDisplay} | 下次: <span class="next-time">${timeString}</span> ${project.endDate ? `| 截止: ${project.endDate}` : ''}</div>
                         </div>
                         <div class="progress-container">
                             <div class="progress-bar"><div class="progress" style="width: ${project.progressInfo.progress}%"></div></div>
                             <div class="progress-text">${project.progressInfo.text} (${project.progressInfo.progress.toFixed(1)}%)</div>
                         </div>
                         <div class="project-actions">
-                            <button class="btn-success" onclick="completeProject(${project.id})" ${isCompleted ? 'disabled style="background:#95a5a6;"' : ''}>✅ 完成</button>
-                            <button class="btn-edit" onclick="resetProject(${project.id})">🔄 重置</button>
+                            <button class="btn-success" onclick="completeProjectForTag('${project.id}', '${currentTag}')" ${isCompleted ? 'disabled style="background:#95a5a6;"' : ''}>✅ 完成</button>
+                            <button class="btn-edit" onclick="resetProject('${project.id}')">🔄 重置</button>
+                        </div>
+                        <div class="user-tags">
+                            ${project.userTags.map(tag => `
+                                <div class="user-tag ${tag === currentTag ? 'active' : ''}" 
+                                     onclick="switchUserTag('${project.id}', '${tag}')">
+                                    ${tag}
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function completeProject(projectId) {
-            const project = projects.find(p => p.id === projectId);
-            if (project) { project.completed++; renderProjects(); saveData(); }
-        }
-
         function resetProject(projectId) {
             const project = projects.find(p => p.id === projectId);
-            if (project && confirm('确定重置进度？')) { project.completed = 0; renderProjects(); saveData(); }
+            if (project && confirm('确定重置当前账户的进度？')) { 
+                const currentTag = project.currentTag || project.userTags[0];
+                if (project.tagProgress) {
+                    project.tagProgress[currentTag] = 0;
+                }
+                showToast(`已重置: ${project.name} (${currentTag})`, 'info');
+                renderProjects(); 
+                saveData(); 
+            }
         }
 
-        function saveData() { localStorage.setItem('projects', JSON.stringify(projects)); }
-
+        // 表单相关函数
         function showProjectForm(projectId = null) {
             const form = document.getElementById('project-form');
             form.reset();
             document.getElementById('project-id').value = '';
+            userTags = [];
             
             if (projectId) {
                 document.getElementById('form-title').textContent = '编辑项目';
@@ -754,21 +1150,37 @@
                     document.getElementById('project-name').value = project.name;
                     document.getElementById('project-description').value = project.description || '';
                     document.getElementById('project-type').value = project.type;
-                    document.getElementById('project-hour').value = project.rule.hour.toString().padStart(2, '0') + ':00';
-                    if (project.type === 'weekly') document.getElementById('project-weekday').value = project.rule.weekday;
-                    else if (project.type === 'monthly') document.getElementById('project-day').value = project.rule.dayOfMonth;
+                    document.getElementById('project-hour').value = project.rule.hour;
+                    document.getElementById('project-reset').value = project.resetType || 'monthly';
+                    
+                    userTags = [...(project.userTags || ['默认'])];
+                    renderTagList();
+                    
+                    if (project.type === 'weekly') {
+                        document.getElementById('project-weekday').value = project.rule.weekday;
+                    } else if (project.type === 'monthly') {
+                        document.getElementById('project-day').value = project.rule.dayOfMonth;
+                    }
+                    
                     if (project.rule.monthlyTotal) {
                         document.getElementById('project-total').value = 'custom';
                         document.getElementById('project-custom-total').value = project.rule.monthlyTotal;
                         toggleCustomTotal();
                     }
-                    if (project.endDate) document.getElementById('project-end').value = project.endDate;
+                    
+                    if (project.endDate) {
+                        document.getElementById('project-end').value = project.endDate;
+                    }
+                    
                     toggleScheduleFields();
                 }
             } else {
                 document.getElementById('form-title').textContent = '添加新项目';
                 document.getElementById('delete-btn').style.display = 'none';
+                userTags = ['默认'];
+                renderTagList();
             }
+            
             document.getElementById('form-overlay').style.display = 'block';
             document.getElementById('project-form-container').style.display = 'block';
         }
@@ -789,92 +1201,94 @@
             document.getElementById('custom-total-group').style.display = totalType === 'custom' ? 'block' : 'none';
         }
 
-        function saveProject(event) {
+        async function saveProject(event) {
             event.preventDefault();
+            
             const id = document.getElementById('project-id').value;
             const name = document.getElementById('project-name').value;
             const description = document.getElementById('project-description').value;
             const type = document.getElementById('project-type').value;
-            const hour = parseInt(document.getElementById('project-hour').value.split(':')[0]);
+            const hour = document.getElementById('project-hour').value;
+            const resetType = document.getElementById('project-reset').value;
             const endDate = document.getElementById('project-end').value || null;
             
             let rule = { hour: hour };
-            if (type === 'weekly') rule.weekday = parseInt(document.getElementById('project-weekday').value);
-            else if (type === 'monthly') rule.dayOfMonth = parseInt(document.getElementById('project-day').value);
+            if (type === 'weekly') {
+                rule.weekday = parseInt(document.getElementById('project-weekday').value);
+            } else if (type === 'monthly') {
+                rule.dayOfMonth = parseInt(document.getElementById('project-day').value);
+            }
             
             const totalType = document.getElementById('project-total').value;
-            if (totalType === 'custom') rule.monthlyTotal = parseInt(document.getElementById('project-custom-total').value);
+            if (totalType === 'custom') {
+                rule.monthlyTotal = parseInt(document.getElementById('project-custom-total').value);
+            }
             
             if (id) {
                 const index = projects.findIndex(p => p.id == id);
-                if (index !== -1) projects[index] = { ...projects[index], name, description, type, rule, endDate };
+                if (index !== -1) {
+                    const oldProject = projects[index];
+                    const tagProgress = { ...oldProject.tagProgress };
+                    userTags.forEach(tag => {
+                        if (!tagProgress[tag]) tagProgress[tag] = 0;
+                    });
+                    Object.keys(tagProgress).forEach(tag => {
+                        if (!userTags.includes(tag)) delete tagProgress[tag];
+                    });
+                    
+                    projects[index] = { 
+                        ...oldProject,
+                        name, description, type, rule, resetType, endDate,
+                        userTags: [...userTags],
+                        tagProgress,
+                        currentTag: oldProject.currentTag && userTags.includes(oldProject.currentTag) ? oldProject.currentTag : userTags[0]
+                    };
+                    showToast(`已更新: ${name}`, 'success');
+                }
             } else {
-                const newId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
-                projects.push({ id: newId, name, description, type, rule, completed: 0, endDate });
+                const newId = generateUniqueId();
+                const tagProgress = {};
+                userTags.forEach(tag => tagProgress[tag] = 0);
+                
+                const newProject = { 
+                    id: newId, name, description, type, rule, 
+                    resetType: resetType || 'monthly', endDate,
+                    userTags: [...userTags], tagProgress, currentTag: userTags[0]
+                };
+                projects.push(newProject);
+                showToast(`已添加: ${name}`, 'success');
             }
-            hideProjectForm(); renderProjects(); saveData();
-        }
-
-        function deleteProject() {
-            const id = document.getElementById('project-id').value;
-            if (id && confirm('确定删除？')) { projects = projects.filter(p => p.id != id); hideProjectForm(); renderProjects(); saveData(); }
-        }
-
-        function exportData() {
-            const dataStr = JSON.stringify(projects, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = `task-data-${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-            alert('数据已导出！');
-        }
-
-        function importData() {
-            const input = document.createElement('input');
-            input.type = 'file'; input.accept = '.json';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = event => {
-                    try {
-                        const importedData = JSON.parse(event.target.result);
-                        if (Array.isArray(importData) && confirm(`导入 ${importedData.length} 个项目？`)) {
-                            projects = importedData; saveData(); renderProjects(); alert('导入成功！');
-                        } else alert('文件格式错误！');
-                    } catch (error) { alert('文件读取失败！'); }
-                }; reader.readAsText(file);
-            }; input.click();
-        }
-
-        function showQRCode() {
-            const qrContainer = document.getElementById('qr-container');
-            const currentUrl = window.location.href;
-            qrContainer.innerHTML = `
-                <div class="qr-code">
-                    <h4>手机扫描访问</h4>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}" alt="二维码">
-                    <p style="color:#666; font-size:12px; margin-top:10px;">手机扫描即可访问</p>
-                </div>
-            `;
-        }
-
-        function initializeApp() {
-            const savedData = localStorage.getItem('projects');
-            if (savedData) try { projects = JSON.parse(savedData); } catch (e) { console.error('加载失败'); }
+            
+            hideProjectForm();
             renderProjects();
-            const nextYear = new Date(); nextYear.setFullYear(nextYear.getFullYear() + 1);
-            document.getElementById('project-end').value = nextYear.toISOString().split('T')[0];
+            await saveData();
         }
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 检查是否已经设置密码
-            const savedPassword = localStorage.getItem(PASSWORD_KEY);
+        // 初始化应用
+        function initApp() {
+            const savedPassword = localStorage.getItem('app_password');
+            const loginContainer = document.getElementById('login-container');
+            const appContent = document.getElementById('app-content');
+            
             if (savedPassword) {
-                showMainApp();
+                // 自动验证密码
+                document.getElementById('password-input').value = savedPassword;
+                checkPassword();
+            } else {
+                loginContainer.style.display = 'block';
+                appContent.style.display = 'none';
             }
-        });
+            
+            // 添加回车键登录支持
+            document.getElementById('password-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+        }
+
+        // 启动应用
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
