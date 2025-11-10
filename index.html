@@ -960,6 +960,22 @@
             };
         }
 
+        // 新增函数：检查项目的所有用户是否都已完成
+        function checkAllUsersCompleted(project) {
+            if (!project.userTags || !project.tagProgress) return false;
+            
+            const denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
+            
+            // 检查每个用户标签的完成情况
+            for (const tag of project.userTags) {
+                const completed = project.tagProgress[tag] || 0;
+                if (completed < denominator) {
+                    return false; // 有用户未完成
+                }
+            }
+            return true; // 所有用户都完成了
+        }
+
         function calculateTotalStats() {
             let totalCompleted = 0;
             let totalTasks = 0;
@@ -991,6 +1007,8 @@
             activeProjects.forEach(p => {
                 p.nextScheduledTime = calculateNextScheduledTime(p);
                 p.progressInfo = calculateProgress(p);
+                // 新增：计算所有用户的完成状态
+                p.allUsersCompleted = checkAllUsersCompleted(p);
             });
 
             switch (currentSortMode) {
@@ -1002,10 +1020,11 @@
                     break;
                 default:
                     activeProjects.sort((a, b) => {
-                        const aCompleted = a.progressInfo.progress >= 100;
-                        const bCompleted = b.progressInfo.progress >= 100;
-                        if (aCompleted && !bCompleted) return 1;
-                        if (!aCompleted && bCompleted) return -1;
+                        // 修改：只有当所有用户都完成时才下沉
+                        const aAllCompleted = a.allUsersCompleted;
+                        const bAllCompleted = b.allUsersCompleted;
+                        if (aAllCompleted && !bAllCompleted) return 1;
+                        if (!aAllCompleted && bAllCompleted) return -1;
                         return a.nextScheduledTime - b.nextScheduledTime;
                     });
             }
@@ -1082,17 +1101,22 @@
                     weekday: 'short'
                 });
 
-                const isCompleted = project.progressInfo.progress >= 100;
+                // 修改：使用所有用户完成状态来判断是否显示完成标志
+                const isAllCompleted = project.allUsersCompleted;
+                const currentTag = project.currentTag || project.userTags[0];
+                const currentCompleted = project.tagProgress ? (project.tagProgress[currentTag] || 0) : 0;
+                const denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
+                const isCurrentCompleted = currentCompleted >= denominator;
+
                 const sameNameCount = projects.filter(p => p.name === project.name).length;
                 const nameSuffix = sameNameCount > 1 ? ` #${projects.filter(p => p.name === project.name).findIndex(p => p.id === project.id) + 1}` : '';
-                const currentTag = project.currentTag || project.userTags[0];
 
                 return `
-                    <div class="project-card" style="opacity: ${isCompleted ? '0.8' : '1'}; border-left-color: ${isCompleted ? '#95a5a6' : '#3498db'}">
+                    <div class="project-card" style="opacity: ${isAllCompleted ? '0.8' : '1'}; border-left-color: ${isAllCompleted ? '#95a5a6' : '#3498db'}">
                         <div class="project-header">
                             <div class="project-title">
                                 ${project.resetType === 'monthly' ? '<span class="reset-badge">每月重置</span>' : ''}
-                                ${project.name}${nameSuffix} ${isCompleted ? '✅' : ''}
+                                ${project.name}${nameSuffix} ${isAllCompleted ? '✅' : (isCurrentCompleted ? '🟡' : '')}
                             </div>
                             <button class="btn-edit" onclick="showProjectForm('${project.id}')">编辑</button>
                         </div>
@@ -1105,16 +1129,20 @@
                             <div class="progress-text">${project.progressInfo.text} (${project.progressInfo.progress.toFixed(1)}%)</div>
                         </div>
                         <div class="project-actions">
-                            <button class="btn-success" onclick="completeProjectForTag('${project.id}', '${currentTag}')" ${isCompleted ? 'disabled style="background:#95a5a6;"' : ''}>✅ 完成</button>
+                            <button class="btn-success" onclick="completeProjectForTag('${project.id}', '${currentTag}')" ${isCurrentCompleted ? 'disabled style="background:#95a5a6;"' : ''}>✅ 完成</button>
                             <button class="btn-edit" onclick="resetProject('${project.id}')">🔄 重置</button>
                         </div>
                         <div class="user-tags">
-                            ${project.userTags.map(tag => `
-                                <div class="user-tag ${tag === currentTag ? 'active' : ''}" 
-                                     onclick="switchUserTag('${project.id}', '${tag}')">
-                                    ${tag}
-                                </div>
-                            `).join('')}
+                            ${project.userTags.map(tag => {
+                                const tagCompleted = project.tagProgress ? (project.tagProgress[tag] || 0) : 0;
+                                const isTagCompleted = tagCompleted >= denominator;
+                                return `
+                                    <div class="user-tag ${tag === currentTag ? 'active' : ''}" 
+                                         onclick="switchUserTag('${project.id}', '${tag}')">
+                                        ${tag} ${isTagCompleted ? '✅' : ''}
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
