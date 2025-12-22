@@ -1,0 +1,2932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理器 - 微信推送版</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.4;
+            color: #333;
+            background: #f8f9fa;
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin: 15px 0;
+            color: #2c3e50;
+            font-size: 1.5em;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .btn-edit:hover {
+            background: #e67e22;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-sort {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .btn-sort:hover {
+            background: #7f8c8d;
+        }
+        .btn-sort.active {
+            background: #3498db;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .project-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 3px solid #3498db;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-bottom: 40px;
+        }
+        .project-card.expired {
+            border-left-color: #95a5a6;
+            opacity: 0.7;
+        }
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+        .project-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+            line-height: 1.3;
+            flex: 1;
+        }
+        .project-description {
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            font-style: italic;
+        }
+        .project-meta {
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .time-display {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .next-time {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .progress-container {
+            margin: 10px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 16px;
+            background: #ecf0f1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+        .project-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            grid-column: 1 / -1;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-card {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .form-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 95%;
+            max-width: 450px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .form-title {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+            color: #34495e;
+            font-size: 13px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .form-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+        }
+        .form-section-title {
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        small {
+            color: #7f8c8d;
+            font-size: 11px;
+        }
+
+        .reset-badge {
+            background: #3498db;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-right: 8px;
+        }
+
+        /* 用户标签样式 - 底部导航形式 */
+        .user-tags {
+            display: flex;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            border-radius: 0 0 6px 6px;
+            padding: 6px;
+            gap: 1px;
+        }
+        .user-tag {
+            flex: 1;
+            background: #ecf0f1;
+            color: #7f8c8d;
+            padding: 6px 4px;
+            font-size: 10px;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+            transition: all 0.2s ease;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-tag:hover {
+            background: #d5dbdb;
+        }
+        .user-tag.active {
+            background: #3498db;
+            color: white;
+        }
+        .user-tag:first-child {
+            border-radius: 0 0 0 6px;
+        }
+        .user-tag:last-child {
+            border-radius: 0 0 6px 0;
+        }
+
+        .tag-input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .tag-input {
+            flex: 1;
+            padding: 6px;
+            font-size: 12px;
+        }
+        .add-tag-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .tag-list {
+            margin-top: 8px;
+        }
+        .tag-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            background: #f8f9fa;
+            margin: 2px 0;
+            border-radius: 4px;
+        }
+        .remove-tag {
+            color: #e74c3c;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            z-index: 1001;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .toast.success {
+            background: #2ecc71;
+        }
+        .toast.info {
+            background: #3498db;
+        }
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        /* 登录表单样式 */
+        .login-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 1001;
+            width: 95%;
+            max-width: 400px;
+        }
+        .login-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .login-btn:hover {
+            background: #2980b9;
+        }
+        .login-error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* 数据管理按钮 */
+        .data-manager-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .data-manager-btn:hover {
+            background: #8e44ad;
+        }
+
+        /* 推送状态指示器 */
+        .push-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: 5px;
+            background: #2ecc71;
+        }
+        .push-indicator.off {
+            background: #95a5a6;
+        }
+
+        /* 用户组管理样式 */
+        .user-group-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .user-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .user-group-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 5px;
+        }
+
+        .tag-badge {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .form-container {
+                width: 98%;
+                padding: 15px;
+            }
+            .toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录表单 - 初始显示 -->
+    <div class="login-container" id="login-container">
+        <h2 class="login-title">任务管理器登录</h2>
+        <input type="password" id="password-input" class="login-input" placeholder="请输入访问密码">
+        <div class="login-error" id="login-error">密码错误，请重试</div>
+        <button class="login-btn" onclick="checkPassword()">登录</button>
+        <div style="margin-top: 15px; font-size: 12px; color: #7f8c8d; text-align: center;">
+            首次使用请直接输入密码
+        </div>
+    </div>
+
+    <!-- 应用内容 - 初始隐藏 -->
+    <div id="app-content" style="display:none;">
+        <div class="header">
+            <div>
+                <h1>任务管理器 <span style="font-size: 12px; color: #3498db;">📱 微信推送已集成</span></h1>
+                <div style="font-size: 11px; color: #7f8c8d; margin-top: 5px;">
+                    24小时云电脑运行 | 支持自定义微信提醒
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="data-manager-btn" onclick="showDataManager()">💾 数据管理</button>
+                <button class="btn-primary" onclick="showProjectForm()">+ 添加新项目</button>
+            </div>
+        </div>
+
+        <div id="toast" class="toast"></div>
+
+        <div class="sort-buttons">
+            <button class="btn-sort active" onclick="changeSortMode('default')" id="sort-default">📅 默认排序</button>
+            <button class="btn-sort" onclick="changeSortMode('completed')" id="sort-completed">✅ 按已完成</button>
+            <button class="btn-sort" onclick="changeSortMode('incomplete')" id="sort-incomplete">⏳ 按未完成</button>
+            <button class="btn-sort" onclick="changeSortMode('expired')" id="sort-expired">⏰ 已结束</button>
+        </div>
+
+        <div class="stats" id="stats-container"></div>
+
+        <div class="projects-grid" id="project-list"></div>
+
+        <!-- 表单遮罩 -->
+        <div class="overlay" id="form-overlay" onclick="hideAllForms()"></div>
+        
+        <!-- 项目表单 -->
+        <div class="form-container" id="project-form-container">
+            <h3 class="form-title" id="form-title">添加新项目</h3>
+            <form id="project-form" onsubmit="saveProject(event)">
+                <input type="hidden" id="project-id" value="">
+                
+                <div class="form-group">
+                    <label for="project-name">项目名称</label>
+                    <input type="text" id="project-name" placeholder="例如：邮储信用卡领券" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="project-description">项目介绍（可选）</label>
+                    <textarea id="project-description" placeholder="简要描述这个项目的具体内容..."></textarea>
+                </div>
+
+                <!-- 用户组设置部分 -->
+                <div class="form-section" id="user-group-section">
+                    <div class="form-section-title">用户组设置</div>
+                    
+                    <div class="form-group">
+                        <label>选择用户组</label>
+                        <select id="user-group-select" onchange="onUserGroupChange()" style="margin-bottom: 10px;">
+                            <option value="">-- 选择用户组 --</option>
+                            <!-- 用户组选项将通过JS动态加载 -->
+                        </select>
+                        
+                        <!-- 用户组详情显示 -->
+                        <div id="user-group-details" style="display: none; margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                            <div style="font-size: 12px;">
+                                <strong>用户列表：</strong>
+                                <div id="group-tags-display"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 用户标签编辑区域 -->
+                        <div id="tag-editor" style="display: none;">
+                            <label>自定义用户标签</label>
+                            <div class="tag-input-group">
+                                <input type="text" id="new-tag" class="tag-input" placeholder="输入标签名称" maxlength="10">
+                                <button type="button" class="add-tag-btn" onclick="addUserTag()">添加</button>
+                            </div>
+                            <div class="tag-list" id="tag-list"></div>
+                            <small>添加多个标签来区分不同账户的相同任务</small>
+                            
+                            <!-- 用户组管理按钮 -->
+                            <div style="margin-top: 10px; display: flex; gap: 5px;">
+                                <button type="button" class="btn-edit" onclick="saveCurrentAsGroup()">💾 另存为新组</button>
+                                <button type="button" class="btn-danger" onclick="clearTags()" style="font-size: 11px;">清空标签</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 用户组管理按钮 -->
+                        <div style="margin-top: 10px;">
+                            <button type="button" class="btn-edit" onclick="showUserGroupManager()" style="font-size: 11px;">👥 管理用户组</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="form-section-title">执行时间设置</div>
+                    
+                    <div class="form-group">
+                        <label for="project-type">执行频率</label>
+                        <select id="project-type" onchange="toggleScheduleFields()" required>
+                            <option value="daily">每日固定时间</option>
+                            <option value="weekly">每周固定时间</option>
+                            <option value="monthly">每月固定日期</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="weekday-group" style="display:none;">
+                        <label for="project-weekday">星期几执行</label>
+                        <select id="project-weekday">
+                            <option value="0">周日</option>
+                            <option value="1">周一</option>
+                            <option value="2">周二</option>
+                            <option value="3">周三</option>
+                            <option value="4">周四</option>
+                            <option value="5">周五</option>
+                            <option value="6">周六</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="day-of-month-group" style="display:none;">
+                        <label for="project-day">每月几号执行</label>
+                        <input type="number" id="project-day" min="1" max="31" value="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="project-hour">具体时间</label>
+                        <input type="time" id="project-hour" value="10:00" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">进度设置</div>
+                    
+                    <div class="form-group">
+                        <label for="project-total">月度次数计算方式</label>
+                        <select id="project-total" onchange="toggleCustomTotal()">
+                            <option value="auto">自动计算</option>
+                            <option value="custom" selected>自定义固定次数</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="custom-total-group" style="display:block;">
+                        <label for="project-custom-total">每月固定次数</label>
+                        <input type="number" id="project-custom-total" min="1" value="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project-reset">进度重置方式</label>
+                        <select id="project-reset">
+                            <option value="monthly">每月1日自动重置</option>
+                            <option value="manual">手动重置</option>
+                            <option value="none">不重置</option>
+                        </select>
+                        <small>每月重置：每月1日0点自动清空进度</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">有效期设置</div>
+                    <div class="form-group">
+                        <label for="project-end">结束日期（可选）</label>
+                        <input type="date" id="project-end">
+                        <small>不填则永久有效，到期后自动隐藏</small>
+                    </div>
+                </div>
+
+                <!-- 微信推送设置部分 -->
+                <div class="form-section">
+                    <div class="form-section-title">微信推送设置</div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="enable-reminder" style="width: auto; margin-right: 8px;" onchange="toggleReminderFields()">
+                            <span>启用微信推送提醒</span>
+                            <span class="push-indicator" id="push-indicator"></span>
+                        </label>
+                        <small>启用后，将在任务开始前通过微信发送提醒</small>
+                    </div>
+                    
+                    <div class="form-group" id="reminder-fields" style="display:none;">
+                        <label for="reminder-minutes">提前提醒时间（分钟）</label>
+                        <input type="number" id="reminder-minutes" min="1" max="1440" value="15">
+                        <small>在任务执行前多少分钟发送微信提醒（1-1440分钟）</small>
+                        
+                        <div style="margin-top: 10px; padding: 10px; background: #e8f4fd; border-radius: 4px; font-size: 12px;">
+                            <div>📱 推送地址已配置：</div>
+                            <div style="word-break: break-all; color: #3498db; margin-top: 4px;">
+                                https://push.showdoc.com.cn/server/api/push/fcd844c8a4c686ab74e862b9b6d455411878644630
+                            </div>
+                            <div style="margin-top: 8px; color: #7f8c8d;">
+                                使用前请确保：<br>
+                                1. 云电脑24小时开机<br>
+                                2. 浏览器页面保持打开<br>
+                                3. 网络连接正常
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-danger" id="delete-btn" style="display:none;" onclick="deleteProject()">删除项目</button>
+                    <button type="button" class="btn-edit" onclick="hideProjectForm()">取消</button>
+                    <button type="submit" class="btn-success">保存项目</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 数据管理弹窗 -->
+        <div class="form-container" id="data-manager" style="display: none; max-width: 500px;">
+            <h3 class="form-title">数据管理</h3>
+            
+            <div class="form-section">
+                <div class="form-section-title">Supabase 状态</div>
+                <div id="supabase-status" style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 12px; line-height: 1.6;">
+                    正在检查连接...
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="form-section-title">推送状态</div>
+                <div id="push-status" style="font-size: 12px; line-height: 1.6; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    <div><strong>推送服务：</strong><span id="push-service-status">正在检测...</span></div>
+                    <div><strong>活跃定时器：</strong><span id="active-timers">0 个</span></div>
+                    <div><strong>推送地址：</strong><span style="word-break: break-all; display: block; margin-top: 4px;">
+                        https://push.showdoc.com.cn/server/api/push/fcd844c8a4c686ab74e862b9b6d455411878644630
+                    </span></div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="form-section-title">用户组管理</div>
+                <div id="user-groups-stats" style="font-size: 12px; line-height: 1.6; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    <div><strong>用户组总数：</strong><span id="user-groups-count">0</span> 个</div>
+                    <div><strong>总用户标签：</strong><span id="total-tags-count">0</span> 个</div>
+                    <div><strong>默认用户组：</strong><span id="default-group-name">无</span></div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button class="btn-success" onclick="showUserGroupManager()" style="width: 100%;">👥 管理用户组</button>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="form-section-title">数据操作</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn-success" onclick="exportData()">📥 导出数据到文件</button>
+                    <button class="btn-edit" onclick="importData()">📤 从文件导入数据</button>
+                    <button class="btn-edit" onclick="forceSync()">🔄 强制同步数据</button>
+                    <button class="btn-success" onclick="testPushNotification()">📱 测试推送通知</button>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="form-section-title">数据统计</div>
+                <div id="data-stats" style="font-size: 12px; line-height: 1.6;">
+                    <!-- 动态加载统计信息 -->
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn-edit" onclick="hideDataManager()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载 Supabase 客户端库 -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // 调试信息
+        console.log('应用开始初始化...');
+        
+        // Supabase 配置
+        const SUPABASE_CONFIG = {
+            URL: 'https://nocqnjjdaiaqsdhnlosi.supabase.co',
+            ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vY3FuampkYWlhcXNkaG5sb3NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3NjkyMjAsImV4cCI6MjA4MTM0NTIyMH0.9nHxiPUn6zQZJpGaJE9wmogfUsAz3ll1ZNbwJz1L6ow',
+            TABLES: {
+                PROJECTS: 'projects',
+                CONFIG: 'config',
+                USER_GROUPS: 'user_groups'  // 新增用户组表
+            }
+        };
+
+        // 全局变量
+        let projects = [];
+        let userGroups = [];  // 新增用户组列表
+        let currentSortMode = 'default';
+        let userTags = [];
+        let isAuthenticated = false;
+        let modifiedProjects = new Map();
+        let modifiedUserGroups = new Map();  // 新增修改的用户组
+        
+        // 微信推送相关全局变量
+        let reminderTimers = {};
+        const PUSH_TOKEN = 'fcd844c8a4c686ab74e862b9b6d455411878644630';
+        const PUSH_URL = `https://push.showdoc.com.cn/server/api/push/${PUSH_TOKEN}`;
+
+        // ==================== 工具函数 ====================
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.getElementById('toast');
+            if (!toast) {
+                console.error('Toast元素未找到');
+                return;
+            }
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), duration);
+        }
+
+        // ==================== 用户标签管理 ====================
+        function addUserTag() {
+            const tagInput = document.getElementById('new-tag');
+            if (!tagInput) {
+                showToast('标签输入框未找到', 'error');
+                return;
+            }
+            const tagName = tagInput.value.trim();
+            if (!tagName) return showToast('请输入标签名称', 'error');
+            if (userTags.includes(tagName)) return showToast('标签已存在', 'error');
+            userTags.push(tagName);
+            renderTagList();
+            tagInput.value = '';
+        }
+
+        function removeUserTag(tagName) {
+            userTags = userTags.filter(tag => tag !== tagName);
+            renderTagList();
+        }
+
+        function renderTagList() {
+            const tagList = document.getElementById('tag-list');
+            if (!tagList) {
+                console.error('tag-list元素未找到');
+                return;
+            }
+            tagList.innerHTML = userTags.map(tag => `
+                <div class="tag-item">
+                    <span>${tag}</span>
+                    <span class="remove-tag" onclick="removeUserTag('${tag}')">×</span>
+                </div>
+            `).join('');
+        }
+
+        function generateUniqueId() {
+            return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
+        }
+
+        // ==================== 用户组管理 ====================
+        async function loadUserGroups() {
+            try {
+                console.log('加载用户组...');
+                
+                const { data, error } = await supabase
+                    .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
+                    .select('*')
+                    .order('created_at', { ascending: true });
+                
+                if (error) {
+                    console.error('加载用户组出错:', error);
+                    // 如果没有用户组表，创建默认组
+                    if (error.code === '42P01') { // 表不存在
+                        await createDefaultUserGroup();
+                        return;
+                    }
+                    throw error;
+                }
+                
+                console.log('加载的用户组:', data);
+                
+                userGroups = data.map(group => ({
+                    id: group.id,
+                    name: group.name,
+                    description: group.description || '',
+                    tags: group.tags || [],
+                    isDefault: group.is_default || false,
+                    createdAt: group.created_at,
+                    updatedAt: group.updated_at
+                }));
+                
+                // 如果没有用户组，创建默认组
+                if (userGroups.length === 0) {
+                    await createDefaultUserGroup();
+                }
+                
+                console.log(`加载了 ${userGroups.length} 个用户组`);
+                updateUserGroupStats();
+                
+            } catch (error) {
+                console.error('用户组加载失败:', error);
+                // 创建内存中的默认组
+                userGroups = [{
+                    id: 'default-group',
+                    name: '默认组',
+                    description: '默认用户组',
+                    tags: ['默认'],
+                    isDefault: true,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }];
+                updateUserGroupStats();
+            }
+        }
+
+        async function createDefaultUserGroup() {
+            try {
+                const defaultGroup = {
+                    name: '默认组',
+                    description: '默认用户组',
+                    tags: ['默认'],
+                    is_default: true
+                };
+                
+                const { data, error } = await supabase
+                    .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
+                    .insert([defaultGroup])
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                userGroups = [{
+                    id: data.id,
+                    name: data.name,
+                    description: data.description,
+                    tags: data.tags,
+                    isDefault: data.is_default,
+                    createdAt: data.created_at,
+                    updatedAt: data.updated_at
+                }];
+                
+                console.log('创建默认用户组成功');
+                updateUserGroupStats();
+            } catch (error) {
+                console.error('创建默认用户组失败:', error);
+            }
+        }
+
+        async function saveUserGroup(group) {
+            try {
+                console.log('保存用户组:', group);
+                
+                const supabaseGroup = {
+                    name: group.name,
+                    description: group.description,
+                    tags: group.tags,
+                    is_default: group.isDefault || false,
+                    updated_at: new Date().toISOString()
+                };
+                
+                let result;
+                
+                if (group.id) {
+                    // 更新现有组
+                    supabaseGroup.id = group.id;
+                    result = await supabase
+                        .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
+                        .upsert([supabaseGroup], { onConflict: 'id' });
+                } else {
+                    // 创建新组
+                    result = await supabase
+                        .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
+                        .insert([supabaseGroup])
+                        .select()
+                        .single();
+                        
+                    if (result.data) {
+                        group.id = result.data.id;
+                    }
+                }
+                
+                if (result.error) throw result.error;
+                
+                modifiedUserGroups.delete(group.id);
+                
+                return true;
+            } catch (error) {
+                console.error('保存用户组失败:', error);
+                return false;
+            }
+        }
+
+        async function deleteUserGroup(groupId) {
+            try {
+                // 检查是否有项目使用这个用户组
+                const projectsUsingGroup = projects.filter(p => 
+                    p.userTags && p.userTags.some(tag => {
+                        const group = userGroups.find(g => g.id === groupId);
+                        return group && group.tags.includes(tag);
+                    })
+                );
+                
+                if (projectsUsingGroup.length > 0) {
+                    const projectNames = projectsUsingGroup.map(p => p.name).join(', ');
+                    showToast(`无法删除，以下项目正在使用此用户组：${projectNames}`, 'error');
+                    return false;
+                }
+                
+                const { error } = await supabase
+                    .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
+                    .delete()
+                    .eq('id', groupId);
+                
+                if (error) throw error;
+                
+                // 从本地删除
+                const index = userGroups.findIndex(g => g.id === groupId);
+                if (index !== -1) {
+                    userGroups.splice(index, 1);
+                }
+                
+                modifiedUserGroups.delete(groupId);
+                
+                showToast('用户组已删除', 'success');
+                return true;
+            } catch (error) {
+                console.error('删除用户组失败:', error);
+                showToast('删除失败: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        function updateUserGroupStats() {
+            const countElement = document.getElementById('user-groups-count');
+            const tagsElement = document.getElementById('total-tags-count');
+            const defaultElement = document.getElementById('default-group-name');
+            
+            if (countElement) {
+                countElement.textContent = userGroups.length;
+            }
+            
+            if (tagsElement) {
+                const totalTags = userGroups.reduce((sum, group) => sum + group.tags.length, 0);
+                tagsElement.textContent = totalTags;
+            }
+            
+            if (defaultElement) {
+                const defaultGroup = userGroups.find(g => g.isDefault);
+                defaultElement.textContent = defaultGroup ? defaultGroup.name : '无';
+            }
+        }
+
+        // 用户组变更处理
+        function onUserGroupChange() {
+            const groupSelect = document.getElementById('user-group-select');
+            const groupId = groupSelect.value;
+            const tagEditor = document.getElementById('tag-editor');
+            const groupDetails = document.getElementById('user-group-details');
+            const tagsDisplay = document.getElementById('group-tags-display');
+            
+            if (groupId === 'new') {
+                // 创建新组模式
+                userTags = [];
+                tagEditor.style.display = 'block';
+                groupDetails.style.display = 'none';
+                renderTagList();
+            } else if (groupId) {
+                // 选择现有组
+                const group = userGroups.find(g => g.id === groupId);
+                if (group) {
+                    userTags = [...group.tags];
+                    tagEditor.style.display = 'block';
+                    groupDetails.style.display = 'block';
+                    
+                    // 显示组内用户
+                    tagsDisplay.innerHTML = group.tags.map(tag => 
+                        `<span class="tag-badge">${tag}</span>`
+                    ).join('');
+                    
+                    renderTagList();
+                }
+            } else {
+                // 未选择
+                tagEditor.style.display = 'none';
+                groupDetails.style.display = 'none';
+            }
+        }
+
+        // 保存当前标签为新用户组
+        async function saveCurrentAsGroup() {
+            if (userTags.length === 0) {
+                showToast('请先添加标签', 'error');
+                return;
+            }
+            
+            const groupName = prompt('请输入新用户组名称：', `用户组_${new Date().toLocaleDateString()}`);
+            if (!groupName) return;
+            
+            const newGroup = {
+                name: groupName,
+                description: '自定义用户组',
+                tags: [...userTags],
+                isDefault: false
+            };
+            
+            showToast('正在保存用户组...', 'info');
+            
+            const success = await saveUserGroup(newGroup);
+            if (success) {
+                // 重新加载用户组
+                await loadUserGroups();
+                
+                // 更新下拉框
+                const groupSelect = document.getElementById('user-group-select');
+                groupSelect.innerHTML = `
+                    <option value="">-- 选择用户组 --</option>
+                    ${userGroups.map(group => `
+                        <option value="${group.id}">${group.name} (${group.tags.length}个用户)</option>
+                    `).join('')}
+                    <option value="new">+ 创建新用户组</option>
+                `;
+                
+                // 选中新创建的组
+                groupSelect.value = newGroup.id;
+                onUserGroupChange();
+                
+                showToast(`用户组 "${groupName}" 已保存`, 'success');
+            }
+        }
+
+        // 清空标签
+        function clearTags() {
+            if (confirm('确定要清空所有标签吗？')) {
+                userTags = [];
+                renderTagList();
+            }
+        }
+
+        // 显示用户组管理器
+        function showUserGroupManager() {
+            const managerHtml = `
+                <div class="form-container" id="user-group-manager" style="max-width: 500px;">
+                    <h3 class="form-title">用户组管理</h3>
+                    
+                    <div class="form-section">
+                        <div class="form-section-title">现有用户组</div>
+                        <div style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
+                            ${userGroups.map(group => `
+                                <div class="user-group-item">
+                                    <div class="user-group-header">
+                                        <div>
+                                            <strong>${group.name}</strong>
+                                            ${group.isDefault ? '<span style="font-size: 10px; color: #3498db; margin-left: 5px;">[默认]</span>' : ''}
+                                            <div style="font-size: 11px; color: #7f8c8d; margin-top: 2px;">
+                                                ${group.description || '无描述'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <button class="btn-edit" onclick="editUserGroup('${group.id}')" style="font-size: 11px; padding: 3px 8px;">编辑</button>
+                                            ${!group.isDefault ? `<button class="btn-danger" onclick="deleteUserGroupConfirm('${group.id}')" style="font-size: 11px; padding: 3px 8px;">删除</button>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="user-group-tags">
+                                        ${group.tags.map(tag => 
+                                            `<span class="tag-badge">${tag}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <button class="btn-success" onclick="createNewUserGroup()" style="width: 100%;">+ 创建新用户组</button>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn-edit" onclick="hideUserGroupManager()">关闭</button>
+                    </div>
+                </div>
+            `;
+            
+            // 创建遮罩
+            const overlay = document.getElementById('form-overlay');
+            overlay.style.display = 'block';
+            
+            // 移除已有的管理器
+            const existingManager = document.getElementById('user-group-manager');
+            if (existingManager) existingManager.remove();
+            
+            // 添加新的管理器
+            overlay.insertAdjacentHTML('afterend', managerHtml);
+        }
+
+        function hideUserGroupManager() {
+            document.getElementById('form-overlay').style.display = 'none';
+            const manager = document.getElementById('user-group-manager');
+            if (manager) manager.remove();
+        }
+
+        function editUserGroup(groupId) {
+            const group = userGroups.find(g => g.id === groupId);
+            if (!group) return;
+            
+            const newName = prompt('请输入新的组名称：', group.name);
+            if (!newName) return;
+            
+            const newDescription = prompt('请输入组描述：', group.description || '');
+            
+            showToast('正在更新用户组...', 'info');
+            
+            group.name = newName;
+            group.description = newDescription;
+            modifiedUserGroups.set(group.id, group);
+            
+            saveUserGroup(group).then(success => {
+                if (success) {
+                    // 更新下拉框
+                    const groupSelect = document.getElementById('user-group-select');
+                    groupSelect.innerHTML = `
+                        <option value="">-- 选择用户组 --</option>
+                        ${userGroups.map(g => `
+                            <option value="${g.id}">${g.name} (${g.tags.length}个用户)</option>
+                        `).join('')}
+                        <option value="new">+ 创建新用户组</option>
+                    `;
+                    
+                    hideUserGroupManager();
+                    showUserGroupManager(); // 刷新显示
+                    showToast(`用户组 "${newName}" 已更新`, 'success');
+                }
+            });
+        }
+
+        function deleteUserGroupConfirm(groupId) {
+            if (confirm('确定要删除这个用户组吗？')) {
+                deleteUserGroup(groupId).then(success => {
+                    if (success) {
+                        // 更新下拉框
+                        const groupSelect = document.getElementById('user-group-select');
+                        groupSelect.innerHTML = `
+                            <option value="">-- 选择用户组 --</option>
+                            ${userGroups.map(g => `
+                                <option value="${g.id}">${g.name} (${g.tags.length}个用户)</option>
+                            `).join('')}
+                            <option value="new">+ 创建新用户组</option>
+                        `;
+                        
+                        hideUserGroupManager();
+                        showUserGroupManager(); // 刷新显示
+                    }
+                });
+            }
+        }
+
+        function createNewUserGroup() {
+            const groupSelect = document.getElementById('user-group-select');
+            groupSelect.value = 'new';
+            onUserGroupChange();
+            hideUserGroupManager();
+            hideProjectForm();
+            setTimeout(() => showProjectForm(), 100);
+        }
+
+        // ==================== 微信推送功能 ====================
+        function toggleReminderFields() {
+            const enabled = document.getElementById('enable-reminder').checked;
+            document.getElementById('reminder-fields').style.display = enabled ? 'block' : 'none';
+            const indicator = document.getElementById('push-indicator');
+            if (indicator) {
+                indicator.className = enabled ? 'push-indicator' : 'push-indicator off';
+            }
+        }
+
+        // 计算下次提醒时间（基于项目规则）
+        function calculateNextReminderTime(project, reminderMinutes = 15) {
+            if (!project.nextScheduledTime) {
+                project.nextScheduledTime = calculateNextScheduledTime(project);
+            }
+            
+            const now = new Date();
+            const taskTime = new Date(project.nextScheduledTime);
+            
+            // 提醒时间 = 任务时间 - 提前分钟数
+            const reminderTime = new Date(taskTime.getTime() - reminderMinutes * 60 * 1000);
+            
+            return reminderTime.getTime();
+        }
+
+        // 发送微信推送
+        async function sendWechatReminder(project, reminderMinutes = 15) {
+            try {
+                // 格式化时间
+                const taskTime = new Date(project.nextScheduledTime);
+                const timeStr = taskTime.toLocaleString('zh-CN', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    weekday: 'short'
+                });
+                
+                const title = `🔔 任务提醒: ${project.name}`;
+                const content = `任务 "${project.name}" 将在 ${reminderMinutes} 分钟后开始\n` +
+                               `⏰ 执行时间: ${timeStr}\n` +
+                               `🏷️ 当前标签: ${project.currentTag || project.userTags[0]}\n` +
+                               `📊 进度: ${project.progressInfo?.text || '0/0'}`;
+                
+                console.log('发送推送请求:', { title, content });
+                
+                // 发送POST请求到ShowDoc推送
+                const response = await fetch(PUSH_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`
+                });
+                
+                const result = await response.json();
+                console.log('推送响应:', result);
+                
+                if (result.error_code === 0) {
+                    console.log(`微信推送发送成功: ${project.name}`);
+                    
+                    // 更新推送状态显示
+                    updatePushStatus();
+                    
+                    return { success: true, message: `微信提醒已发送: ${project.name}` };
+                } else {
+                    console.error('推送失败:', result.error_message);
+                    return { success: false, message: `推送失败: ${result.error_message}` };
+                }
+            } catch (error) {
+                console.error('发送推送时出错:', error);
+                return { success: false, message: '发送推送失败，请检查网络' };
+            }
+        }
+
+        // 设置单个任务的提醒定时器
+        function scheduleReminder(project) {
+            console.log(`为项目 ${project.name} 设置提醒定时器，启用状态: ${project.reminderEnabled}`);
+            
+            // 清除已有的定时器
+            if (reminderTimers[project.id]) {
+                clearTimeout(reminderTimers[project.id]);
+                delete reminderTimers[project.id];
+            }
+            
+            // 检查是否启用推送
+            if (!project.reminderEnabled) {
+                console.log(`项目 ${project.name} 未启用推送，跳过定时器设置`);
+                return;
+            }
+            
+            const reminderMinutes = project.reminderMinutes || 15;
+            
+            // 计算下次提醒时间
+            const reminderTime = calculateNextReminderTime(project, reminderMinutes);
+            const now = Date.now();
+            const delay = reminderTime - now;
+            
+            console.log(`提醒时间计算:`, {
+                项目: project.name,
+                任务时间: new Date(project.nextScheduledTime).toLocaleString(),
+                提醒分钟数: reminderMinutes,
+                提醒时间: new Date(reminderTime).toLocaleString(),
+                当前时间: new Date(now).toLocaleString(),
+                延迟毫秒: delay
+            });
+            
+            // 如果提醒时间在未来
+            if (delay > 0 && delay < 2147483647) { // setTimeout的最大延迟值
+                reminderTimers[project.id] = setTimeout(async () => {
+                    console.log(`定时器触发，发送推送: ${project.name}`);
+                    const result = await sendWechatReminder(project, reminderMinutes);
+                    
+                    if (result.success) {
+                        showToast(result.message, 'success');
+                    } else {
+                        showToast(result.message, 'error');
+                    }
+                    
+                    // 清理当前定时器
+                    delete reminderTimers[project.id];
+                    updatePushStatus();
+                    
+                }, delay);
+                
+                console.log(`为任务"${project.name}"设置提醒，将在 ${new Date(reminderTime).toLocaleString()} 触发`);
+                
+                updatePushStatus();
+            } else if (delay > 0) {
+                console.warn(`提醒延迟时间过长 (${delay}ms)，跳过设置定时器: ${project.name}`);
+            } else {
+                console.log(`提醒时间已过或无效，不设置定时器: ${project.name}`);
+            }
+        }
+
+        // 页面加载时恢复所有提醒
+        function restoreAllReminders() {
+            console.log('恢复所有提醒定时器...');
+            console.log('当前项目数:', projects.length);
+            console.log('启用推送的项目:', projects.filter(p => p.reminderEnabled).map(p => p.name));
+            
+            // 为每个活跃项目设置提醒
+            projects.filter(p => !checkIsExpired(p) && p.reminderEnabled).forEach(project => {
+                console.log(`为项目恢复提醒: ${project.name}`);
+                scheduleReminder(project);
+            });
+            
+            updatePushStatus();
+        }
+
+        // 更新推送状态显示
+        function updatePushStatus() {
+            const activeTimersElement = document.getElementById('active-timers');
+            const pushServiceElement = document.getElementById('push-service-status');
+            
+            if (activeTimersElement) {
+                const activeCount = Object.keys(reminderTimers).length;
+                activeTimersElement.textContent = `${activeCount} 个`;
+                activeTimersElement.style.color = activeCount > 0 ? '#2ecc71' : '#95a5a6';
+            }
+            
+            if (pushServiceElement) {
+                pushServiceElement.textContent = '正常 (ShowDoc)';
+                pushServiceElement.style.color = '#2ecc71';
+            }
+        }
+
+        // 测试推送通知
+        async function testPushNotification() {
+            showToast('正在发送测试推送...', 'info');
+            
+            const testProject = {
+                name: '测试推送任务',
+                nextScheduledTime: Date.now() + 300000, // 5分钟后
+                currentTag: '测试',
+                userTags: ['测试'],
+                progressInfo: { text: '0/1' }
+            };
+            
+            const result = await sendWechatReminder(testProject, 5);
+            if (result.success) {
+                showToast('测试推送发送成功，请检查微信', 'success');
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+
+        // ==================== 身份验证 ====================
+        async function checkPassword() {
+            const passwordInput = document.getElementById('password-input');
+            if (!passwordInput) {
+                console.error('密码输入框未找到');
+                return;
+            }
+            
+            const password = passwordInput.value.trim();
+            const errorElement = document.getElementById('login-error');
+
+            if (!password) {
+                errorElement.textContent = '请输入密码';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            try {
+                console.log('开始验证密码...');
+                
+                // 从 Supabase 获取密码（更健壮的方式）
+                const { data, error } = await supabase
+                    .from(SUPABASE_CONFIG.TABLES.CONFIG)
+                    .select('value')
+                    .eq('key', 'password')
+                    .eq('type', 'auth')
+                    .maybeSingle();  // 使用 maybeSingle 而不是 single
+                
+                console.log('密码查询结果:', data, error);
+                
+                if (error && error.code !== 'PGRST116') {
+                    throw error;
+                }
+                
+                // 如果没有密码记录，或者密码正确
+                if (!data || (data && password === data.value)) {
+                    // 如果没有密码记录，创建它
+                    if (!data) {
+                        console.log('首次使用或密码丢失，创建密码...');
+                        const { error: insertError } = await supabase
+                            .from(SUPABASE_CONFIG.TABLES.CONFIG)
+                            .upsert([{ 
+                                key: 'password', 
+                                value: password, 
+                                type: 'auth' 
+                            }]);
+                        
+                        if (insertError) {
+                            console.error('创建密码失败:', insertError);
+                            throw insertError;
+                        }
+                    }
+                    
+                    localStorage.setItem('app_password', password);
+                    showAppContent();
+                    showToast('登录成功', 'success');
+                } else {
+                    errorElement.textContent = '密码错误，请重试';
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('验证失败:', error);
+                errorElement.textContent = '验证失败: ' + error.message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function showAppContent() {
+            console.log('显示应用内容...');
+            const loginContainer = document.getElementById('login-container');
+            const appContent = document.getElementById('app-content');
+            
+            if (!loginContainer || !appContent) {
+                console.error('登录容器或应用内容元素未找到');
+                return;
+            }
+            
+            loginContainer.style.display = 'none';
+            appContent.style.display = 'block';
+            isAuthenticated = true;
+            
+            // 先加载用户组，再加载项目数据
+            loadUserGroups().then(() => {
+                loadData();
+                setupRealtimeSubscription();
+                updateDataStats();
+                updateUserGroupStats();
+            });
+        }
+
+        // ==================== 数据操作 ====================
+        async function loadData() {
+            try {
+                showToast('正在从 Supabase 加载数据...', 'info');
+                
+                // 从 Supabase 加载项目数据
+                const { data, error } = await supabase
+                    .from(SUPABASE_CONFIG.TABLES.PROJECTS)
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    console.error('加载数据出错:', error);
+                    throw error;
+                }
+                
+                console.log('从Supabase加载的数据:', data);
+                
+                projects = data.map(item => ({
+                    id: item.id,
+                    name: item.name || '',
+                    description: item.description || '',
+                    type: item.type || 'daily',
+                    rule: item.rule || { hour: '10:00' },
+                    resetType: item.reset_type || 'monthly',
+                    endDate: item.end_date || null,
+                    userTags: item.user_tags || ['默认'],
+                    tagProgress: item.tag_progress || {},
+                    currentTag: item.current_tag || '默认',
+                    reminderEnabled: item.reminder_enabled || false,
+                    reminderMinutes: item.reminder_minutes || 15,
+                    userGroupId: item.user_group_id || null,
+                    createdAt: item.created_at || new Date().toISOString(),
+                    updatedAt: item.updated_at || new Date().toISOString()
+                }));
+                
+                console.log(`加载了 ${projects.length} 个项目，其中 ${projects.filter(p => p.reminderEnabled).length} 个启用了推送`);
+                
+                // 检查是否需要重置
+                checkMonthlyReset();
+                
+                showToast(`成功加载 ${projects.length} 个项目`, 'success', 2000);
+                renderProjects();
+                
+                // 加载完成后设置所有提醒
+                setTimeout(() => {
+                    restoreAllReminders();
+                    updatePushStatus();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('数据加载失败:', error);
+                showToast('数据加载失败: ' + error.message, 'error');
+                
+                // 尝试从本地恢复
+                const localData = localStorage.getItem('supabase_backup');
+                if (localData) {
+                    try {
+                        projects = JSON.parse(localData);
+                        showToast('从本地备份恢复数据', 'info');
+                        renderProjects();
+                        restoreAllReminders();
+                    } catch (e) {
+                        console.error('解析本地备份失败:', e);
+                        projects = [];
+                        renderProjects();
+                    }
+                } else {
+                    projects = [];
+                    renderProjects();
+                }
+            }
+        }
+
+        async function saveData() {
+            try {
+                if (modifiedProjects.size === 0) {
+                    console.log('没有修改的项目，跳过保存');
+                    return true;
+                }
+                
+                console.log('保存数据，修改项目数:', modifiedProjects.size);
+                console.log('修改的项目:', Array.from(modifiedProjects.values()).map(p => p.name));
+                
+                // 批量更新
+                const updates = Array.from(modifiedProjects.values()).map(project => ({
+                    id: project.id,
+                    name: project.name,
+                    description: project.description,
+                    type: project.type,
+                    rule: project.rule,
+                    reset_type: project.resetType,
+                    end_date: project.endDate,
+                    user_tags: project.userTags,
+                    tag_progress: project.tagProgress,
+                    current_tag: project.currentTag,
+                    reminder_enabled: project.reminderEnabled,
+                    reminder_minutes: project.reminderMinutes,
+                    user_group_id: project.userGroupId || null,
+                    updated_at: new Date().toISOString()
+                }));
+                
+                // Supabase 批量 upsert
+                const { data, error } = await supabase
+                    .from(SUPABASE_CONFIG.TABLES.PROJECTS)
+                    .upsert(updates, { 
+                        onConflict: 'id',
+                        ignoreDuplicates: false 
+                    });
+                
+                if (error) {
+                    console.error('保存到Supabase失败:', error);
+                    throw error;
+                }
+                
+                console.log('保存成功，清空修改记录');
+                
+                // 清空修改记录
+                modifiedProjects.clear();
+                
+                // 保存用户组修改
+                if (modifiedUserGroups.size > 0) {
+                    const userGroupUpdates = Array.from(modifiedUserGroups.values()).map(group => ({
+                        id: group.id,
+                        name: group.name,
+                        description: group.description,
+                        tags: group.tags,
+                        is_default: group.isDefault || false,
+                        updated_at: new Date().toISOString()
+                    }));
+                    
+                    const { error: groupError } = await supabase
+                        .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
+                        .upsert(userGroupUpdates, { onConflict: 'id' });
+                    
+                    if (groupError) {
+                        console.error('保存用户组失败:', groupError);
+                    } else {
+                        modifiedUserGroups.clear();
+                    }
+                }
+                
+                // 创建本地备份
+                localStorage.setItem('supabase_backup', JSON.stringify(projects));
+                localStorage.setItem('user_groups_backup', JSON.stringify(userGroups));
+                localStorage.setItem('last_sync_time', new Date().toISOString());
+                
+                return true;
+            } catch (error) {
+                console.error('数据保存失败:', error);
+                
+                // 失败时保存到本地
+                localStorage.setItem('supabase_backup', JSON.stringify(projects));
+                localStorage.setItem('user_groups_backup', JSON.stringify(userGroups));
+                showToast('保存失败，数据已保存到本地: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        async function forceSync() {
+            try {
+                showToast('正在强制同步...', 'info');
+                await saveData();
+                await loadData();
+                await loadUserGroups();
+                showToast('同步完成', 'success');
+                updatePushStatus();
+            } catch (error) {
+                showToast('同步失败: ' + error.message, 'error');
+            }
+        }
+
+        // ==================== 项目操作 ====================
+        function switchUserTag(projectId, tagName) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.currentTag = tagName;
+                modifiedProjects.set(projectId, project);
+                renderProjects();
+                saveData();
+            }
+        }
+
+        function completeProjectForTag(projectId, tagName) {
+            const project = projects.find(p => p.id === projectId);
+            if (project && project.tagProgress) {
+                const current = project.tagProgress[tagName] || 0;
+                project.tagProgress[tagName] = current + 1;
+                
+                modifiedProjects.set(projectId, project);
+                
+                showToast(`已完成: ${project.name} (${tagName})`, 'success');
+                renderProjects();
+                saveData();
+            }
+        }
+
+        function resetProject(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (project && confirm('确定重置当前账户的进度？')) { 
+                const currentTag = project.currentTag || project.userTags[0];
+                if (project.tagProgress) {
+                    project.tagProgress[currentTag] = 0;
+                }
+                
+                modifiedProjects.set(projectId, project);
+                
+                showToast(`已重置: ${project.name} (${currentTag})`, 'info');
+                renderProjects(); 
+                saveData(); 
+            }
+        }
+
+        // ==================== 智能重置逻辑 ====================
+        async function checkMonthlyReset() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+            const currentDay = now.getDate();
+            
+            try {
+                // 从服务器获取最后一次重置信息
+                const { data: serverResetData, error } = await supabase
+                    .from(SUPABASE_CONFIG.TABLES.CONFIG)
+                    .select('value')
+                    .eq('key', 'last_reset_info')
+                    .eq('type', 'system')
+                    .maybeSingle();
+                
+                if (error) {
+                    console.error('从服务器获取重置信息失败:', error);
+                    showToast('重置状态检查失败，跳过重置操作', 'error');
+                    return;
+                }
+                
+                let lastResetInfo = {};
+                if (serverResetData && serverResetData.value) {
+                    try {
+                        lastResetInfo = JSON.parse(serverResetData.value);
+                    } catch (e) {
+                        console.error('解析重置信息失败:', e);
+                        showToast('重置信息格式错误，跳过重置操作', 'error');
+                        return;
+                    }
+                }
+                
+                const lastResetYear = lastResetInfo.year || 0;
+                const lastResetMonth = lastResetInfo.month || 0;
+                
+                console.log('重置检查:', {
+                    当前时间: `${currentYear}年${currentMonth}月${currentDay}日`,
+                    最后重置: lastResetInfo.year ? `${lastResetInfo.year}年${lastResetInfo.month}月${lastResetInfo.date}日` : '从未重置'
+                });
+                
+                // 判断是否需要重置
+                let shouldReset = false;
+                
+                // 情况1：今天是1号，且本月未重置过
+                if (currentDay === 1) {
+                    if (!(lastResetYear === currentYear && lastResetMonth === currentMonth)) {
+                        shouldReset = true;
+                    }
+                }
+                // 情况2：不是1号，但是上个月的重置未执行
+                else if (lastResetMonth !== currentMonth && lastResetMonth !== currentMonth - 1) {
+                    shouldReset = true;
+                }
+                // 情况3：首次使用或重置记录丢失
+                else if (!lastResetInfo.year || !lastResetInfo.month) {
+                    shouldReset = true;
+                }
+                
+                if (!shouldReset) {
+                    console.log('本月已重置过，跳过重置');
+                    return;
+                }
+                
+                console.log('需要执行重置操作');
+                
+                let resetCount = 0;
+                projects.forEach(project => {
+                    if (project.resetType === 'monthly' && project.tagProgress) {
+                        Object.keys(project.tagProgress).forEach(tag => {
+                            if (project.tagProgress[tag] > 0) {
+                                project.tagProgress[tag] = 0;
+                                resetCount++;
+                                modifiedProjects.set(project.id, project);
+                            }
+                        });
+                    }
+                });
+                
+                if (resetCount > 0) {
+                    // 更新重置记录到服务器
+                    const newResetInfo = {
+                        year: currentYear,
+                        month: currentMonth,
+                        date: currentDay,
+                        timestamp: now.toISOString(),
+                        resetCount: resetCount,
+                        reason: '自动重置',
+                        source: window.location.hostname || 'unknown'
+                    };
+                    
+                    // 保存到服务器
+                    const { error: saveError } = await supabase
+                        .from(SUPABASE_CONFIG.TABLES.CONFIG)
+                        .upsert([{ 
+                            key: 'last_reset_info', 
+                            value: JSON.stringify(newResetInfo), 
+                            type: 'system' 
+                        }], { onConflict: 'key' });
+                    
+                    if (saveError) {
+                        console.error('保存重置信息到服务器失败:', saveError);
+                        showToast('重置成功但记录保存失败', 'error');
+                    } else {
+                        console.log('重置信息已保存到服务器');
+                        showToast(`已重置 ${resetCount} 个标签`, 'success');
+                    }
+                    
+                    // 保存项目数据到服务器
+                    await saveData();
+                    
+                    console.log(`重置了 ${resetCount} 个标签`);
+                } else {
+                    // 即使没有重置，也更新记录（避免重复检查）
+                    const newResetInfo = {
+                        year: currentYear,
+                        month: currentMonth,
+                        date: currentDay,
+                        timestamp: now.toISOString(),
+                        resetCount: 0,
+                        reason: '无需要重置的标签',
+                        source: window.location.hostname || 'unknown'
+                    };
+                    
+                    // 保存到服务器
+                    const { error: saveError } = await supabase
+                        .from(SUPABASE_CONFIG.TABLES.CONFIG)
+                        .upsert([{ 
+                            key: 'last_reset_info', 
+                            value: JSON.stringify(newResetInfo), 
+                            type: 'system' 
+                        }], { onConflict: 'key' });
+                    
+                    if (!saveError) {
+                        console.log('更新重置记录完成');
+                    }
+                    
+                    console.log('没有需要重置的标签，更新重置记录');
+                }
+                
+            } catch (error) {
+                console.error('重置检查过程中出错:', error);
+                showToast('重置检查失败: ' + error.message, 'error');
+            }
+        }
+
+        // ==================== 项目显示和计算 ====================
+        function calculateNextScheduledTime(project) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const [hours, minutes] = project.rule.hour.split(':').map(Number);
+
+            if (project.type === 'daily') {
+                let nextDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
+                if (nextDate < now) nextDate.setDate(nextDate.getDate() + 1);
+                return nextDate.getTime();
+            } else if (project.type === 'weekly') {
+                const targetDay = project.rule.weekday;
+                let nextDate = new Date(today);
+                let dayDelta = targetDay - today.getDay();
+                if (dayDelta < 0 || (dayDelta === 0 && (now.getHours() > hours || (now.getHours() === hours && now.getMinutes() >= minutes)))) {
+                    dayDelta += 7;
+                }
+                nextDate.setDate(today.getDate() + dayDelta);
+                return new Date(nextDate.getFullYear(), nextDate.getMonth(), nextDate.getDate(), hours, minutes, 0).getTime();
+            } else {
+                const targetDay = project.rule.dayOfMonth || 1;
+                let nextDate = new Date(today.getFullYear(), today.getMonth(), targetDay, hours, minutes, 0);
+                if (nextDate < now) {
+                    nextDate = new Date(today.getFullYear(), today.getMonth() + 1, targetDay, hours, minutes, 0);
+                }
+                return nextDate.getTime();
+            }
+        }
+
+        function getNumberOfSpecificDaysInMonth(project) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            
+            if (project.type === 'daily') {
+                return new Date(year, month + 1, 0).getDate();
+            } else if (project.type === 'weekly') {
+                const targetDay = project.rule.weekday;
+                const date = new Date(year, month, 1);
+                let count = 0;
+                while (date.getMonth() === month) {
+                    if (date.getDay() === targetDay) count++;
+                    date.setDate(date.getDate() + 1);
+                }
+                return count;
+            } else {
+                return 1;
+            }
+        }
+
+        function calculateProgress(project) {
+            const currentTag = project.currentTag || project.userTags[0];
+            const completed = project.tagProgress ? (project.tagProgress[currentTag] || 0) : 0;
+            const denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
+            const progress = (completed / denominator) * 100;
+            return {
+                progress: progress > 100 ? 100 : progress,
+                text: `${completed} / ${denominator}`,
+                denominator: denominator,
+                completed: completed
+            };
+        }
+
+        function checkAllUsersCompleted(project) {
+            if (!project.userTags || !project.tagProgress) return false;
+            
+            const denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
+            
+            for (const tag of project.userTags) {
+                const completed = project.tagProgress[tag] || 0;
+                if (completed < denominator) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function calculateTotalStats() {
+            let totalCompleted = 0;
+            let totalTasks = 0;
+
+            projects.forEach(project => {
+                if (!checkIsExpired(project)) {
+                    const denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
+                    if (project.tagProgress) {
+                        Object.values(project.tagProgress).forEach(completed => {
+                            totalCompleted += completed;
+                        });
+                    }
+                    if (project.userTags) {
+                        totalTasks += denominator * project.userTags.length;
+                    }
+                }
+            });
+
+            return { totalCompleted, totalTasks };
+        }
+
+        function checkIsExpired(project) {
+            return project.endDate ? new Date() > new Date(project.endDate) : false;
+        }
+
+        function getSortedProjects() {
+            // 根据当前排序模式获取相应的项目
+            switch (currentSortMode) {
+                case 'expired':
+                    // 显示已结束的项目
+                    const expiredProjects = projects.filter(p => checkIsExpired(p));
+                    expiredProjects.forEach(p => {
+                        p.nextScheduledTime = calculateNextScheduledTime(p);
+                        p.progressInfo = calculateProgress(p);
+                        p.allUsersCompleted = checkAllUsersCompleted(p);
+                    });
+                    return expiredProjects.sort((a, b) => new Date(b.endDate) - new Date(a.endDate));
+                    
+                case 'completed':
+                    const activeCompleted = projects.filter(p => !checkIsExpired(p));
+                    activeCompleted.forEach(p => {
+                        p.nextScheduledTime = calculateNextScheduledTime(p);
+                        p.progressInfo = calculateProgress(p);
+                        p.allUsersCompleted = checkAllUsersCompleted(p);
+                    });
+                    activeCompleted.sort((a, b) => b.progressInfo.progress - a.progressInfo.progress);
+                    return activeCompleted;
+                    
+                case 'incomplete':
+                    const activeIncomplete = projects.filter(p => !checkIsExpired(p));
+                    activeIncomplete.forEach(p => {
+                        p.nextScheduledTime = calculateNextScheduledTime(p);
+                        p.progressInfo = calculateProgress(p);
+                        p.allUsersCompleted = checkAllUsersCompleted(p);
+                    });
+                    activeIncomplete.sort((a, b) => a.progressInfo.progress - b.progressInfo.progress);
+                    return activeIncomplete;
+                    
+                default: // 'default'
+                    const activeProjects = projects.filter(p => !checkIsExpired(p));
+                    activeProjects.forEach(p => {
+                        p.nextScheduledTime = calculateNextScheduledTime(p);
+                        p.progressInfo = calculateProgress(p);
+                        p.allUsersCompleted = checkAllUsersCompleted(p);
+                    });
+                    activeProjects.sort((a, b) => {
+                        const aAllCompleted = a.allUsersCompleted;
+                        const bAllCompleted = b.allUsersCompleted;
+                        if (aAllCompleted && !bAllCompleted) return 1;
+                        if (!aAllCompleted && bAllCompleted) return -1;
+                        return a.nextScheduledTime - b.nextScheduledTime;
+                    });
+                    return activeProjects;
+            }
+        }
+
+        function changeSortMode(mode) {
+            currentSortMode = mode;
+            document.getElementById('sort-default').classList.toggle('active', mode === 'default');
+            document.getElementById('sort-completed').classList.toggle('active', mode === 'completed');
+            document.getElementById('sort-incomplete').classList.toggle('active', mode === 'incomplete');
+            document.getElementById('sort-expired').classList.toggle('active', mode === 'expired');
+            renderProjects();
+        }
+
+        function renderStats() {
+            const container = document.getElementById('stats-container');
+            if (!container) {
+                console.error('stats-container元素未找到');
+                return;
+            }
+            
+            const activeProjects = projects.filter(p => !checkIsExpired(p));
+            const pushEnabledProjects = projects.filter(p => p.reminderEnabled).length;
+            const { totalCompleted, totalTasks } = calculateTotalStats();
+            
+            const completionRate = totalTasks > 0 ? (totalCompleted / totalTasks * 100).toFixed(1) : 0;
+
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${activeProjects.length}</div>
+                    <div class="stat-label">活跃项目</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${pushEnabledProjects}</div>
+                    <div class="stat-label">推送任务</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${completionRate}%</div>
+                    <div class="stat-label">本月完成率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Object.keys(reminderTimers).length}</div>
+                    <div class="stat-label">待提醒</div>
+                </div>
+            `;
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('project-list');
+            if (!container) {
+                console.error('project-list元素未找到');
+                return;
+            }
+            
+            const sortedProjects = getSortedProjects();
+            renderStats();
+
+            if (sortedProjects.length === 0) {
+                if (currentSortMode === 'expired') {
+                    container.innerHTML = '<div class="empty-state">没有已结束的项目</div>';
+                } else {
+                    container.innerHTML = '<div class="empty-state">还没有项目<br><br><button class="btn-primary" onclick="showProjectForm()">添加第一个项目</button></div>';
+                }
+                return;
+            }
+
+            container.innerHTML = sortedProjects.map(project => {
+                const isExpired = checkIsExpired(project);
+                const nextTime = new Date(project.nextScheduledTime);
+                const [hours, minutes] = project.rule.hour.split(':');
+                
+                let timeDisplay = '';
+                if (project.type === 'daily') {
+                    timeDisplay = `每日 <span class="time-display">${hours}:${minutes.padStart(2, '0')}</span>`;
+                } else if (project.type === 'weekly') {
+                    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                    timeDisplay = `每周<span class="time-display">${weekdays[project.rule.weekday]} ${hours}:${minutes.padStart(2, '0')}</span>`;
+                } else {
+                    timeDisplay = `每月<span class="time-display">${project.rule.dayOfMonth}日 ${hours}:${minutes.padStart(2, '0')}</span>`;
+                }
+
+                const timeString = isExpired ? '已结束' : nextTime.toLocaleString('zh-CN', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    weekday: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const isAllCompleted = project.allUsersCompleted;
+                const currentTag = project.currentTag || project.userTags[0];
+                const currentCompleted = project.tagProgress ? (project.tagProgress[currentTag] || 0) : 0;
+                const denominator = project.rule.monthlyTotal || getNumberOfSpecificDaysInMonth(project);
+                const isCurrentCompleted = currentCompleted >= denominator;
+
+                const sameNameCount = projects.filter(p => p.name === project.name).length;
+                const nameSuffix = sameNameCount > 1 ? ` #${projects.filter(p => p.name === project.name).findIndex(p => p.id === project.id) + 1}` : '';
+
+                return `
+                    <div class="project-card ${isExpired ? 'expired' : ''}" style="border-left-color: ${isAllCompleted ? '#95a5a6' : (isExpired ? '#95a5a6' : '#3498db')}">
+                        <div class="project-header">
+                            <div class="project-title">
+                                ${project.resetType === 'monthly' && !isExpired ? '<span class="reset-badge">每月重置</span>' : ''}
+                                ${project.name}${nameSuffix} 
+                                ${isExpired ? '⏰' : (isAllCompleted ? '✅' : (isCurrentCompleted ? '🟡' : ''))}
+                                ${project.reminderEnabled ? '📱' : ''}
+                            </div>
+                            <button class="btn-edit" onclick="showProjectForm('${project.id}')">编辑</button>
+                        </div>
+                        <div class="project-description">${project.description || '暂无介绍'}</div>
+                        <div class="project-meta">
+                            <div>${timeDisplay} | ${isExpired ? '<span class="next-time">已结束</span>' : `下次: <span class="next-time">${timeString}</span>`} ${project.endDate ? `| 截止: ${project.endDate}` : ''}</div>
+                            ${project.reminderEnabled && project.reminderMinutes ? `<div style="font-size:11px;color:#f39c12;margin-top:4px;">📱 提前 ${project.reminderMinutes} 分钟提醒</div>` : ''}
+                        </div>
+                        ${!isExpired ? `
+                        <div class="progress-container">
+                            <div class="progress-bar"><div class="progress" style="width: ${project.progressInfo.progress}%"></div></div>
+                            <div class="progress-text">${project.progressInfo.text} (${project.progressInfo.progress.toFixed(1)}%)</div>
+                        </div>
+                        <div class="project-actions">
+                            <button class="btn-success" onclick="completeProjectForTag('${project.id}', '${currentTag}')" ${isCurrentCompleted ? 'disabled style="background:#95a5a6;"' : ''}>✅ 完成</button>
+                            <button class="btn-edit" onclick="resetProject('${project.id}')">🔄 重置</button>
+                        </div>
+                        ` : ''}
+                        <div class="user-tags">
+                            ${project.userTags.map(tag => {
+                                const tagCompleted = project.tagProgress ? (project.tagProgress[tag] || 0) : 0;
+                                const isTagCompleted = !isExpired ? (tagCompleted >= denominator) : false;
+                                return `
+                                    <div class="user-tag ${tag === currentTag ? 'active' : ''}" 
+                                         onclick="switchUserTag('${project.id}', '${tag}')">
+                                        ${tag} ${isTagCompleted ? '✅' : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== 表单操作 ====================
+        function showProjectForm(projectId = null) {
+            const form = document.getElementById('project-form');
+            if (!form) {
+                console.error('项目表单未找到');
+                return;
+            }
+            
+            form.reset();
+            document.getElementById('project-id').value = '';
+            userTags = [];
+            
+            // 重置推送字段显示
+            toggleReminderFields();
+            
+            // 更新用户组下拉框
+            const groupSelect = document.getElementById('user-group-select');
+            if (groupSelect) {
+                groupSelect.innerHTML = `
+                    <option value="">-- 选择用户组 --</option>
+                    ${userGroups.map(group => `
+                        <option value="${group.id}">${group.name} (${group.tags.length}个用户)</option>
+                    `).join('')}
+                    <option value="new">+ 创建新用户组</option>
+                `;
+            }
+            
+            if (projectId) {
+                document.getElementById('form-title').textContent = '编辑项目';
+                document.getElementById('delete-btn').style.display = 'block';
+                const project = projects.find(p => p.id == projectId);
+                if (project) {
+                    document.getElementById('project-id').value = project.id;
+                    document.getElementById('project-name').value = project.name;
+                    document.getElementById('project-description').value = project.description || '';
+                    document.getElementById('project-type').value = project.type;
+                    document.getElementById('project-hour').value = project.rule.hour;
+                    document.getElementById('project-reset').value = project.resetType || 'monthly';
+                    
+                    // 设置推送字段
+                    document.getElementById('enable-reminder').checked = project.reminderEnabled || false;
+                    document.getElementById('reminder-minutes').value = project.reminderMinutes || 15;
+                    
+                    // 设置用户组和标签
+                    userTags = [...(project.userTags || ['默认'])];
+                    
+                    // 如果有用户组ID，选中对应的用户组
+                    if (project.userGroupId && groupSelect) {
+                        groupSelect.value = project.userGroupId;
+                        onUserGroupChange();
+                    } else if (groupSelect) {
+                        // 查找包含这些标签的用户组
+                        const matchingGroup = userGroups.find(group => 
+                            group.tags.length === userTags.length && 
+                            group.tags.every(tag => userTags.includes(tag))
+                        );
+                        
+                        if (matchingGroup) {
+                            groupSelect.value = matchingGroup.id;
+                            onUserGroupChange();
+                        } else {
+                            groupSelect.value = 'new';
+                            onUserGroupChange();
+                        }
+                    }
+                    
+                    renderTagList();
+                    
+                    if (project.type === 'weekly') {
+                        document.getElementById('project-weekday').value = project.rule.weekday;
+                    } else if (project.type === 'monthly') {
+                        document.getElementById('project-day').value = project.rule.dayOfMonth;
+                    }
+                    
+                    if (project.rule.monthlyTotal) {
+                        document.getElementById('project-total').value = 'custom';
+                        document.getElementById('project-custom-total').value = project.rule.monthlyTotal;
+                        toggleCustomTotal();
+                    } else {
+                        document.getElementById('project-total').value = 'auto';
+                        toggleCustomTotal();
+                    }
+                    
+                    if (project.endDate) {
+                        document.getElementById('project-end').value = project.endDate;
+                    }
+                    
+                    // 更新推送字段显示
+                    toggleReminderFields();
+                    toggleScheduleFields();
+                }
+            } else {
+                document.getElementById('form-title').textContent = '添加新项目';
+                document.getElementById('delete-btn').style.display = 'none';
+                
+                // 设置默认用户组
+                if (groupSelect) {
+                    const defaultGroup = userGroups.find(g => g.isDefault);
+                    if (defaultGroup) {
+                        groupSelect.value = defaultGroup.id;
+                        userTags = [...defaultGroup.tags];
+                        onUserGroupChange();
+                    } else {
+                        groupSelect.value = 'new';
+                        userTags = ['默认'];
+                        onUserGroupChange();
+                    }
+                }
+                
+                // 设置默认值为自定义固定次数
+                document.getElementById('project-total').value = 'custom';
+                document.getElementById('project-custom-total').value = '1';
+                
+                // 设置推送默认值
+                document.getElementById('enable-reminder').checked = false;
+                document.getElementById('reminder-minutes').value = '15';
+                
+                toggleCustomTotal();
+                toggleReminderFields();
+            }
+            
+            document.getElementById('form-overlay').style.display = 'block';
+            document.getElementById('project-form-container').style.display = 'block';
+        }
+
+        function hideProjectForm() {
+            document.getElementById('form-overlay').style.display = 'none';
+            document.getElementById('project-form-container').style.display = 'none';
+        }
+
+        async function saveProject(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('project-id').value;
+            const name = document.getElementById('project-name').value;
+            const description = document.getElementById('project-description').value;
+            const type = document.getElementById('project-type').value;
+            const hour = document.getElementById('project-hour').value;
+            const resetType = document.getElementById('project-reset').value;
+            const endDate = document.getElementById('project-end').value || null;
+            
+            // 获取推送设置
+            const reminderEnabled = document.getElementById('enable-reminder').checked;
+            const reminderMinutes = parseInt(document.getElementById('reminder-minutes').value) || 15;
+            
+            // 获取用户组信息
+            const groupSelect = document.getElementById('user-group-select');
+            const selectedGroupId = groupSelect.value;
+            
+            let rule = { hour: hour };
+            if (type === 'weekly') {
+                rule.weekday = parseInt(document.getElementById('project-weekday').value);
+            } else if (type === 'monthly') {
+                rule.dayOfMonth = parseInt(document.getElementById('project-day').value);
+            }
+            
+            const totalType = document.getElementById('project-total').value;
+            if (totalType === 'custom') {
+                rule.monthlyTotal = parseInt(document.getElementById('project-custom-total').value);
+            } else {
+                rule.monthlyTotal = null;
+            }
+            
+            console.log('保存项目数据:', {
+                id, name, type, hour, resetType, endDate,
+                reminderEnabled, reminderMinutes, rule,
+                userTags, selectedGroupId
+            });
+            
+            if (id) {
+                // 更新现有项目
+                const index = projects.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    const oldProject = projects[index];
+                    const tagProgress = { ...oldProject.tagProgress };
+                    
+                    // 更新标签进度
+                    userTags.forEach(tag => {
+                        if (!tagProgress[tag]) tagProgress[tag] = 0;
+                    });
+                    
+                    // 移除不再存在的标签的进度
+                    Object.keys(tagProgress).forEach(tag => {
+                        if (!userTags.includes(tag)) delete tagProgress[tag];
+                    });
+                    
+                    const updatedProject = { 
+                        ...oldProject,
+                        name, description, type, rule, resetType, endDate,
+                        userTags: [...userTags],
+                        tagProgress,
+                        reminderEnabled,
+                        reminderMinutes,
+                        currentTag: oldProject.currentTag && userTags.includes(oldProject.currentTag) 
+                            ? oldProject.currentTag : (userTags[0] || '默认'),
+                        userGroupId: selectedGroupId,
+                        nextScheduledTime: calculateNextScheduledTime({ ...oldProject, type, rule }),
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    projects[index] = updatedProject;
+                    modifiedProjects.set(id, updatedProject);
+                    
+                    console.log('更新项目成功:', updatedProject);
+                    showToast(`已更新: ${name}`, 'success');
+                    
+                    // 设置或更新提醒
+                    scheduleReminder(updatedProject);
+                }
+            } else {
+                // 创建新项目
+                const newId = generateUniqueId();
+                const tagProgress = {};
+                userTags.forEach(tag => tagProgress[tag] = 0);
+                
+                const newProject = { 
+                    id: newId,
+                    name, description, type, rule, 
+                    resetType: resetType || 'monthly', 
+                    endDate,
+                    userTags: [...userTags], 
+                    tagProgress, 
+                    reminderEnabled,
+                    reminderMinutes,
+                    currentTag: userTags[0] || '默认',
+                    userGroupId: selectedGroupId,
+                    nextScheduledTime: calculateNextScheduledTime({ type, rule }),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                projects.push(newProject);
+                modifiedProjects.set(newId, newProject);
+                
+                console.log('创建新项目成功:', newProject);
+                showToast(`已添加: ${name}`, 'success');
+                
+                // 设置新提醒
+                scheduleReminder(newProject);
+            }
+            
+            // 立即保存到Supabase
+            const saveSuccess = await saveData();
+            if (!saveSuccess) {
+                showToast('保存到云端失败，数据仅保存在本地', 'error');
+            }
+            
+            hideProjectForm();
+            renderProjects();
+            updateUserGroupStats();
+        }
+
+        async function deleteProject() {
+            const id = document.getElementById('project-id').value;
+            if (id && confirm('确定删除？')) {
+                try {
+                    const project = projects.find(p => p.id === id);
+                    
+                    // 清除定时器
+                    if (reminderTimers[id]) {
+                        clearTimeout(reminderTimers[id]);
+                        delete reminderTimers[id];
+                    }
+                    
+                    // 从 Supabase 删除
+                    const { error } = await supabase
+                        .from(SUPABASE_CONFIG.TABLES.PROJECTS)
+                        .delete()
+                        .eq('id', id);
+                    
+                    if (error) throw error;
+                    
+                    // 从本地数据删除
+                    projects = projects.filter(p => p.id !== id);
+                    modifiedProjects.delete(id);
+                    
+                    hideProjectForm();
+                    renderProjects();
+                    
+                    // 更新本地备份
+                    localStorage.setItem('supabase_backup', JSON.stringify(projects));
+                    
+                    showToast(`已删除: ${project.name}`, 'info');
+                    updatePushStatus();
+                    updateUserGroupStats();
+                } catch (error) {
+                    console.error('删除失败:', error);
+                    showToast('删除失败: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function toggleScheduleFields() {
+            const type = document.getElementById('project-type').value;
+            const weekdayGroup = document.getElementById('weekday-group');
+            const dayOfMonthGroup = document.getElementById('day-of-month-group');
+            
+            if (weekdayGroup) weekdayGroup.style.display = type === 'weekly' ? 'block' : 'none';
+            if (dayOfMonthGroup) dayOfMonthGroup.style.display = type === 'monthly' ? 'block' : 'none';
+        }
+
+        function toggleCustomTotal() {
+            const totalType = document.getElementById('project-total').value;
+            const customTotalGroup = document.getElementById('custom-total-group');
+            if (customTotalGroup) customTotalGroup.style.display = totalType === 'custom' ? 'block' : 'none';
+        }
+
+        // ==================== 数据管理功能 ====================
+        function showDataManager() {
+            checkSupabaseStatus();
+            updateDataStats();
+            updatePushStatus();
+            updateUserGroupStats();
+            document.getElementById('form-overlay').style.display = 'block';
+            document.getElementById('data-manager').style.display = 'block';
+        }
+
+        function hideDataManager() {
+            document.getElementById('form-overlay').style.display = 'none';
+            document.getElementById('data-manager').style.display = 'none';
+        }
+
+        function hideAllForms() {
+            hideProjectForm();
+            hideDataManager();
+            hideUserGroupManager();
+        }
+
+        async function checkSupabaseStatus() {
+            const statusDiv = document.getElementById('supabase-status');
+            if (!statusDiv) return;
+            
+            try {
+                // 测试连接
+                const { data, error } = await supabase
+                    .from(SUPABASE_CONFIG.TABLES.PROJECTS)
+                    .select('count')
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                statusDiv.innerHTML = `
+                    <div style="color: #27ae60;">✅ Supabase 连接正常</div>
+                    <div>URL: ${SUPABASE_CONFIG.URL}</div>
+                    <div>数据库表: ${SUPABASE_CONFIG.TABLES.PROJECTS}, ${SUPABASE_CONFIG.TABLES.CONFIG}, ${SUPABASE_CONFIG.TABLES.USER_GROUPS}</div>
+                    <div>实时同步: 已启用</div>
+                `;
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div style="color: #e74c3c;">❌ Supabase 连接失败</div>
+                    <div>错误: ${error.message}</div>
+                    <div>请检查网络连接和API密钥</div>
+                `;
+            }
+        }
+
+        function updateDataStats() {
+            const statsDiv = document.getElementById('data-stats');
+            if (!statsDiv) return;
+            
+            const lastSave = localStorage.getItem('last_sync_time');
+            const pushEnabledCount = projects.filter(p => p.reminderEnabled).length;
+            
+            let statsHtml = `
+                <div><strong>项目总数：</strong>${projects.length} 个</div>
+                <div><strong>推送任务：</strong>${pushEnabledCount} 个</div>
+                <div><strong>最后同步：</strong>${lastSave ? new Date(lastSave).toLocaleString() : '无记录'}</div>
+                <div><strong>待同步项目：</strong>${modifiedProjects.size} 个</div>
+                <div><strong>待同步用户组：</strong>${modifiedUserGroups.size} 个</div>
+                <div><strong>本地备份：</strong>${localStorage.getItem('supabase_backup') ? '已创建' : '无'}</div>
+                <div><strong>活跃定时器：</strong>${Object.keys(reminderTimers).length} 个</div>
+            `;
+            
+            statsDiv.innerHTML = statsHtml;
+        }
+
+        function exportData() {
+            const exportObj = {
+                version: '4.0',
+                exportDate: new Date().toISOString(),
+                source: '任务管理器',
+                projects: projects,
+                userGroups: userGroups,
+                settings: {
+                    lastSync: localStorage.getItem('last_sync_time')
+                }
+            };
+            
+            const dataStr = JSON.stringify(exportObj, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `任务管理器备份_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showToast('数据已导出', 'success');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = async function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = async function(event) {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        
+                        if (!importedData.projects || !Array.isArray(importedData.projects)) {
+                            throw new Error('数据格式不正确');
+                        }
+                        
+                        if (confirm(`确定要导入 ${importedData.projects.length} 个项目吗？当前数据将被替换。`)) {
+                            showToast('正在导入数据...', 'info');
+                            
+                            // 清空现有数据
+                            const { error: deleteError } = await supabase
+                                .from(SUPABASE_CONFIG.TABLES.PROJECTS)
+                                .delete()
+                                .neq('id', '00000000-0000-0000-0000-000000000000');
+                            
+                            if (deleteError) throw deleteError;
+                            
+                            // 导入用户组
+                            if (importedData.userGroups && Array.isArray(importedData.userGroups)) {
+                                const { error: deleteGroupsError } = await supabase
+                                    .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
+                                    .delete()
+                                    .neq('id', '00000000-0000-0000-0000-000000000000');
+                                
+                                if (deleteGroupsError) throw deleteGroupsError;
+                                
+                                const userGroupData = importedData.userGroups.map(group => ({
+                                    name: group.name,
+                                    description: group.description,
+                                    tags: group.tags,
+                                    is_default: group.isDefault || false,
+                                    created_at: group.createdAt || new Date().toISOString()
+                                }));
+                                
+                                const { error: groupsError } = await supabase
+                                    .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
+                                    .insert(userGroupData);
+                                
+                                if (groupsError) throw groupsError;
+                            }
+                            
+                            // 转换并导入项目数据
+                            const supabaseData = importedData.projects.map(project => ({
+                                name: project.name,
+                                description: project.description,
+                                type: project.type,
+                                rule: project.rule,
+                                reset_type: project.resetType,
+                                end_date: project.endDate,
+                                user_tags: project.userTags,
+                                tag_progress: project.tagProgress,
+                                current_tag: project.currentTag,
+                                reminder_enabled: project.reminderEnabled || false,
+                                reminder_minutes: project.reminderMinutes || 15,
+                                user_group_id: project.userGroupId || null,
+                                created_at: project.createdAt || new Date().toISOString()
+                            }));
+                            
+                            const { data, error } = await supabase
+                                .from(SUPABASE_CONFIG.TABLES.PROJECTS)
+                                .insert(supabaseData);
+                            
+                            if (error) throw error;
+                            
+                            // 恢复设置
+                            if (importedData.settings) {
+                                if (importedData.settings.lastSync) {
+                                    localStorage.setItem('last_sync_time', importedData.settings.lastSync);
+                                }
+                            }
+                            
+                            // 重新加载数据
+                            await loadUserGroups();
+                            await loadData();
+                            showToast(`成功导入 ${importedData.projects.length} 个项目`, 'success');
+                        }
+                    } catch (error) {
+                        console.error('导入失败:', error);
+                        showToast('导入失败: ' + error.message, 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // ==================== 实时同步 ====================
+        async function setupRealtimeSubscription() {
+            try {
+                const channel = supabase
+                    .channel('projects-changes')
+                    .on('postgres_changes', 
+                        { 
+                            event: '*', 
+                            schema: 'public', 
+                            table: SUPABASE_CONFIG.TABLES.PROJECTS 
+                        }, 
+                        async (payload) => {
+                            console.log('实时更新:', payload.eventType, payload.new);
+                            
+                            if (payload.eventType === 'INSERT') {
+                                const newProject = {
+                                    id: payload.new.id,
+                                    name: payload.new.name,
+                                    description: payload.new.description,
+                                    type: payload.new.type,
+                                    rule: payload.new.rule,
+                                    resetType: payload.new.reset_type,
+                                    endDate: payload.new.end_date,
+                                    userTags: payload.new.user_tags,
+                                    tagProgress: payload.new.tag_progress,
+                                    currentTag: payload.new.current_tag,
+                                    reminderEnabled: payload.new.reminder_enabled || false,
+                                    reminderMinutes: payload.new.reminder_minutes || 15,
+                                    userGroupId: payload.new.user_group_id,
+                                    createdAt: payload.new.created_at,
+                                    updatedAt: payload.new.updated_at
+                                };
+                                
+                                if (!projects.find(p => p.id === newProject.id)) {
+                                    projects.push(newProject);
+                                    renderProjects();
+                                    
+                                    // 设置新提醒
+                                    if (newProject.reminderEnabled) {
+                                        scheduleReminder(newProject);
+                                    }
+                                    
+                                    showToast('收到新的项目更新', 'info');
+                                }
+                            } 
+                            else if (payload.eventType === 'UPDATE') {
+                                const index = projects.findIndex(p => p.id === payload.new.id);
+                                if (index !== -1) {
+                                    projects[index] = {
+                                        ...projects[index],
+                                        name: payload.new.name,
+                                        description: payload.new.description,
+                                        type: payload.new.type,
+                                        rule: payload.new.rule,
+                                        resetType: payload.new.reset_type,
+                                        endDate: payload.new.end_date,
+                                        userTags: payload.new.user_tags,
+                                        tagProgress: payload.new.tag_progress,
+                                        currentTag: payload.new.current_tag,
+                                        reminderEnabled: payload.new.reminder_enabled || false,
+                                        reminderMinutes: payload.new.reminder_minutes || 15,
+                                        userGroupId: payload.new.user_group_id,
+                                        updatedAt: payload.new.updated_at
+                                    };
+                                    
+                                    renderProjects();
+                                    
+                                    // 更新提醒
+                                    if (payload.new.reminder_enabled) {
+                                        scheduleReminder(projects[index]);
+                                    } else if (reminderTimers[payload.new.id]) {
+                                        clearTimeout(reminderTimers[payload.new.id]);
+                                        delete reminderTimers[payload.new.id];
+                                    }
+                                    
+                                    updatePushStatus();
+                                }
+                            }
+                            else if (payload.eventType === 'DELETE') {
+                                const projectId = payload.old.id;
+                                projects = projects.filter(p => p.id !== projectId);
+                                renderProjects();
+                                
+                                // 清除定时器
+                                if (reminderTimers[projectId]) {
+                                    clearTimeout(reminderTimers[projectId]);
+                                    delete reminderTimers[projectId];
+                                    updatePushStatus();
+                                }
+                            }
+                        }
+                    )
+                    .subscribe();
+                
+                console.log('实时订阅已启动');
+            } catch (error) {
+                console.error('实时订阅失败:', error);
+            }
+        }
+
+        // ==================== 初始化 ====================
+        function initApp() {
+            console.log('应用初始化开始...');
+            
+            // 检查浏览器控制台
+            console.log('检查DOM元素...');
+            console.log('登录容器:', document.getElementById('login-container'));
+            console.log('应用内容:', document.getElementById('app-content'));
+            
+            // 尝试初始化 Supabase
+            try {
+                if (typeof window.supabase !== 'undefined') {
+                    console.log('Supabase库已加载');
+                } else {
+                    console.error('Supabase库未加载');
+                    // 尝试动态加载
+                    const script = document.createElement('script');
+                    script.src = 'https://unpkg.com/@supabase/supabase-js@2';
+                    script.onload = function() {
+                        console.log('Supabase库动态加载完成');
+                        initAfterSupabase();
+                    };
+                    script.onerror = function() {
+                        console.error('Supabase库加载失败');
+                        showToast('Supabase库加载失败，请检查网络', 'error');
+                    };
+                    document.head.appendChild(script);
+                    return;
+                }
+            } catch (error) {
+                console.error('Supabase初始化错误:', error);
+            }
+            
+            initAfterSupabase();
+        }
+
+        function initAfterSupabase() {
+            console.log('初始化Supabase后...');
+            
+            try {
+                // 初始化 Supabase 客户端
+                window.supabase = window.supabase.createClient(
+                    SUPABASE_CONFIG.URL,
+                    SUPABASE_CONFIG.ANON_KEY
+                );
+                console.log('Supabase客户端已创建');
+            } catch (error) {
+                console.error('创建Supabase客户端失败:', error);
+                showToast('创建Supabase客户端失败: ' + error.message, 'error');
+            }
+            
+            const savedPassword = localStorage.getItem('app_password');
+            const loginContainer = document.getElementById('login-container');
+            const appContent = document.getElementById('app-content');
+            
+            if (!loginContainer || !appContent) {
+                console.error('必要的DOM元素未找到');
+                return;
+            }
+            
+            if (savedPassword) {
+                console.log('发现保存的密码，尝试自动登录...');
+                // 显示登录表单并预填密码
+                document.getElementById('password-input').value = savedPassword;
+                // 自动验证密码
+                setTimeout(() => checkPassword(), 500);
+            } else {
+                console.log('无保存的密码，显示登录表单');
+                loginContainer.style.display = 'block';
+                appContent.style.display = 'none';
+            }
+            
+            // 添加回车键登录支持
+            document.getElementById('password-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+
+            // 确保自定义次数输入框初始状态正确
+            toggleCustomTotal();
+            toggleReminderFields();
+            
+            // 检查 Supabase 连接状态
+            setTimeout(checkSupabaseStatus, 1000);
+        }
+
+        // 启动应用
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // 如果DOMContentLoaded已经触发，直接初始化
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(initApp, 100);
+        }
+    </script>
+</body>
+</html>
