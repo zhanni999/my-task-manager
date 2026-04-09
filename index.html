@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>任务管理器 - 微信推送版</title>
+    <title>任务管理器</title>
+   <link rel="icon" type="image/x-icon" href="logo.png">
+
     <style>
         * {
             box-sizing: border-box;
@@ -15,7 +17,7 @@
             line-height: 1.4;
             color: #333;
             background: #f8f9fa;
-            padding: 15px;
+            padding: 15px 15px 80px;
             max-width: 1200px;
             margin: 0 auto;
         }
@@ -528,6 +530,50 @@
             font-size: 10px;
         }
 
+        /* ========== 底部悬浮导航层样式 ========== */
+        .floating-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(128, 128, 128, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .floating-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 40px;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .floating-nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .floating-nav .divider {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        /* 手机端适配 */
         @media (max-width: 768px) {
             .projects-grid {
                 grid-template-columns: 1fr;
@@ -544,6 +590,14 @@
                 top: 10px;
                 right: 10px;
                 left: 10px;
+            }
+            .floating-nav {
+                padding: 10px 16px;
+                gap: 15px;
+            }
+            .floating-nav a {
+                padding: 6px 16px;
+                font-size: 14px;
             }
         }
     </style>
@@ -564,9 +618,9 @@
     <div id="app-content" style="display:none;">
         <div class="header">
             <div>
-                <h1>任务管理器 <span style="font-size: 12px; color: #3498db;">📱 微信推送已集成</span></h1>
+                <h1>任务管理器</h1>
                 <div style="font-size: 11px; color: #7f8c8d; margin-top: 5px;">
-                    24小时云电脑运行 | 支持自定义微信提醒
+                    24小时云电脑运行 | 📱 支持自定义微信提醒
                 </div>
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
@@ -820,6 +874,13 @@
         </div>
     </div>
 
+    <!-- 底部悬浮导航层 -->
+    <div class="floating-nav">
+        <a href="https://sensational-donut-752c56.netlify.app/" target="_self" rel="noopener noreferrer">刷卡管理器</a>
+        <span class="divider">|</span>
+        <a href="https://tranquil-starlight-20ea7e.netlify.app/" target="_self" rel="noopener noreferrer">信用卡管家</a>
+    </div>
+
     <!-- 加载 Supabase 客户端库 -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
@@ -834,18 +895,18 @@
             TABLES: {
                 PROJECTS: 'projects',
                 CONFIG: 'config',
-                USER_GROUPS: 'user_groups'  // 新增用户组表
+                USER_GROUPS: 'user_groups'
             }
         };
 
         // 全局变量
         let projects = [];
-        let userGroups = [];  // 新增用户组列表
+        let userGroups = [];
         let currentSortMode = 'default';
         let userTags = [];
         let isAuthenticated = false;
         let modifiedProjects = new Map();
-        let modifiedUserGroups = new Map();  // 新增修改的用户组
+        let modifiedUserGroups = new Map();
         
         // 微信推送相关全局变量
         let reminderTimers = {};
@@ -915,8 +976,7 @@
                 
                 if (error) {
                     console.error('加载用户组出错:', error);
-                    // 如果没有用户组表，创建默认组
-                    if (error.code === '42P01') { // 表不存在
+                    if (error.code === '42P01') {
                         await createDefaultUserGroup();
                         return;
                     }
@@ -935,7 +995,6 @@
                     updatedAt: group.updated_at
                 }));
                 
-                // 如果没有用户组，创建默认组
                 if (userGroups.length === 0) {
                     await createDefaultUserGroup();
                 }
@@ -945,7 +1004,6 @@
                 
             } catch (error) {
                 console.error('用户组加载失败:', error);
-                // 创建内存中的默认组
                 userGroups = [{
                     id: 'default-group',
                     name: '默认组',
@@ -1008,13 +1066,11 @@
                 let result;
                 
                 if (group.id) {
-                    // 更新现有组
                     supabaseGroup.id = group.id;
                     result = await supabase
                         .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
                         .upsert([supabaseGroup], { onConflict: 'id' });
                 } else {
-                    // 创建新组
                     result = await supabase
                         .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
                         .insert([supabaseGroup])
@@ -1039,7 +1095,6 @@
 
         async function deleteUserGroup(groupId) {
             try {
-                // 检查是否有项目使用这个用户组
                 const projectsUsingGroup = projects.filter(p => 
                     p.userTags && p.userTags.some(tag => {
                         const group = userGroups.find(g => g.id === groupId);
@@ -1060,7 +1115,6 @@
                 
                 if (error) throw error;
                 
-                // 从本地删除
                 const index = userGroups.findIndex(g => g.id === groupId);
                 if (index !== -1) {
                     userGroups.splice(index, 1);
@@ -1097,7 +1151,6 @@
             }
         }
 
-        // 用户组变更处理
         function onUserGroupChange() {
             const groupSelect = document.getElementById('user-group-select');
             const groupId = groupSelect.value;
@@ -1106,20 +1159,17 @@
             const tagsDisplay = document.getElementById('group-tags-display');
             
             if (groupId === 'new') {
-                // 创建新组模式
                 userTags = [];
                 tagEditor.style.display = 'block';
                 groupDetails.style.display = 'none';
                 renderTagList();
             } else if (groupId) {
-                // 选择现有组
                 const group = userGroups.find(g => g.id === groupId);
                 if (group) {
                     userTags = [...group.tags];
                     tagEditor.style.display = 'block';
                     groupDetails.style.display = 'block';
                     
-                    // 显示组内用户
                     tagsDisplay.innerHTML = group.tags.map(tag => 
                         `<span class="tag-badge">${tag}</span>`
                     ).join('');
@@ -1127,13 +1177,11 @@
                     renderTagList();
                 }
             } else {
-                // 未选择
                 tagEditor.style.display = 'none';
                 groupDetails.style.display = 'none';
             }
         }
 
-        // 保存当前标签为新用户组
         async function saveCurrentAsGroup() {
             if (userTags.length === 0) {
                 showToast('请先添加标签', 'error');
@@ -1154,10 +1202,8 @@
             
             const success = await saveUserGroup(newGroup);
             if (success) {
-                // 重新加载用户组
                 await loadUserGroups();
                 
-                // 更新下拉框
                 const groupSelect = document.getElementById('user-group-select');
                 groupSelect.innerHTML = `
                     <option value="">-- 选择用户组 --</option>
@@ -1167,7 +1213,6 @@
                     <option value="new">+ 创建新用户组</option>
                 `;
                 
-                // 选中新创建的组
                 groupSelect.value = newGroup.id;
                 onUserGroupChange();
                 
@@ -1175,7 +1220,6 @@
             }
         }
 
-        // 清空标签
         function clearTags() {
             if (confirm('确定要清空所有标签吗？')) {
                 userTags = [];
@@ -1183,7 +1227,6 @@
             }
         }
 
-        // 显示用户组管理器
         function showUserGroupManager() {
             const managerHtml = `
                 <div class="form-container" id="user-group-manager" style="max-width: 500px;">
@@ -1225,15 +1268,12 @@
                 </div>
             `;
             
-            // 创建遮罩
             const overlay = document.getElementById('form-overlay');
             overlay.style.display = 'block';
             
-            // 移除已有的管理器
             const existingManager = document.getElementById('user-group-manager');
             if (existingManager) existingManager.remove();
             
-            // 添加新的管理器
             overlay.insertAdjacentHTML('afterend', managerHtml);
         }
 
@@ -1260,7 +1300,6 @@
             
             saveUserGroup(group).then(success => {
                 if (success) {
-                    // 更新下拉框
                     const groupSelect = document.getElementById('user-group-select');
                     groupSelect.innerHTML = `
                         <option value="">-- 选择用户组 --</option>
@@ -1271,7 +1310,7 @@
                     `;
                     
                     hideUserGroupManager();
-                    showUserGroupManager(); // 刷新显示
+                    showUserGroupManager();
                     showToast(`用户组 "${newName}" 已更新`, 'success');
                 }
             });
@@ -1281,7 +1320,6 @@
             if (confirm('确定要删除这个用户组吗？')) {
                 deleteUserGroup(groupId).then(success => {
                     if (success) {
-                        // 更新下拉框
                         const groupSelect = document.getElementById('user-group-select');
                         groupSelect.innerHTML = `
                             <option value="">-- 选择用户组 --</option>
@@ -1292,7 +1330,7 @@
                         `;
                         
                         hideUserGroupManager();
-                        showUserGroupManager(); // 刷新显示
+                        showUserGroupManager();
                     }
                 });
             }
@@ -1317,7 +1355,6 @@
             }
         }
 
-        // 计算下次提醒时间（基于项目规则）
         function calculateNextReminderTime(project, reminderMinutes = 15) {
             if (!project.nextScheduledTime) {
                 project.nextScheduledTime = calculateNextScheduledTime(project);
@@ -1325,17 +1362,12 @@
             
             const now = new Date();
             const taskTime = new Date(project.nextScheduledTime);
-            
-            // 提醒时间 = 任务时间 - 提前分钟数
             const reminderTime = new Date(taskTime.getTime() - reminderMinutes * 60 * 1000);
-            
             return reminderTime.getTime();
         }
 
-        // 发送微信推送
         async function sendWechatReminder(project, reminderMinutes = 15) {
             try {
-                // 格式化时间
                 const taskTime = new Date(project.nextScheduledTime);
                 const timeStr = taskTime.toLocaleString('zh-CN', {
                     month: 'short',
@@ -1353,7 +1385,6 @@
                 
                 console.log('发送推送请求:', { title, content });
                 
-                // 发送POST请求到ShowDoc推送
                 const response = await fetch(PUSH_URL, {
                     method: 'POST',
                     headers: {
@@ -1367,10 +1398,7 @@
                 
                 if (result.error_code === 0) {
                     console.log(`微信推送发送成功: ${project.name}`);
-                    
-                    // 更新推送状态显示
                     updatePushStatus();
-                    
                     return { success: true, message: `微信提醒已发送: ${project.name}` };
                 } else {
                     console.error('推送失败:', result.error_message);
@@ -1382,25 +1410,20 @@
             }
         }
 
-        // 设置单个任务的提醒定时器
         function scheduleReminder(project) {
             console.log(`为项目 ${project.name} 设置提醒定时器，启用状态: ${project.reminderEnabled}`);
             
-            // 清除已有的定时器
             if (reminderTimers[project.id]) {
                 clearTimeout(reminderTimers[project.id]);
                 delete reminderTimers[project.id];
             }
             
-            // 检查是否启用推送
             if (!project.reminderEnabled) {
                 console.log(`项目 ${project.name} 未启用推送，跳过定时器设置`);
                 return;
             }
             
             const reminderMinutes = project.reminderMinutes || 15;
-            
-            // 计算下次提醒时间
             const reminderTime = calculateNextReminderTime(project, reminderMinutes);
             const now = Date.now();
             const delay = reminderTime - now;
@@ -1414,8 +1437,7 @@
                 延迟毫秒: delay
             });
             
-            // 如果提醒时间在未来
-            if (delay > 0 && delay < 2147483647) { // setTimeout的最大延迟值
+            if (delay > 0 && delay < 2147483647) {
                 reminderTimers[project.id] = setTimeout(async () => {
                     console.log(`定时器触发，发送推送: ${project.name}`);
                     const result = await sendWechatReminder(project, reminderMinutes);
@@ -1426,14 +1448,11 @@
                         showToast(result.message, 'error');
                     }
                     
-                    // 清理当前定时器
                     delete reminderTimers[project.id];
                     updatePushStatus();
-                    
                 }, delay);
                 
                 console.log(`为任务"${project.name}"设置提醒，将在 ${new Date(reminderTime).toLocaleString()} 触发`);
-                
                 updatePushStatus();
             } else if (delay > 0) {
                 console.warn(`提醒延迟时间过长 (${delay}ms)，跳过设置定时器: ${project.name}`);
@@ -1442,13 +1461,11 @@
             }
         }
 
-        // 页面加载时恢复所有提醒
         function restoreAllReminders() {
             console.log('恢复所有提醒定时器...');
             console.log('当前项目数:', projects.length);
-            console.log('启用推送的项目:', projects.filter(p => p.reminderEnabled).map(p => p.name));
+            console.log('启用推送的项目:', projects.filter(p => !checkIsExpired(p) && p.reminderEnabled).map(p => p.name));
             
-            // 为每个活跃项目设置提醒
             projects.filter(p => !checkIsExpired(p) && p.reminderEnabled).forEach(project => {
                 console.log(`为项目恢复提醒: ${project.name}`);
                 scheduleReminder(project);
@@ -1457,7 +1474,6 @@
             updatePushStatus();
         }
 
-        // 更新推送状态显示
         function updatePushStatus() {
             const activeTimersElement = document.getElementById('active-timers');
             const pushServiceElement = document.getElementById('push-service-status');
@@ -1474,13 +1490,12 @@
             }
         }
 
-        // 测试推送通知
         async function testPushNotification() {
             showToast('正在发送测试推送...', 'info');
             
             const testProject = {
                 name: '测试推送任务',
-                nextScheduledTime: Date.now() + 300000, // 5分钟后
+                nextScheduledTime: Date.now() + 300000,
                 currentTag: '测试',
                 userTags: ['测试'],
                 progressInfo: { text: '0/1' }
@@ -1514,13 +1529,12 @@
             try {
                 console.log('开始验证密码...');
                 
-                // 从 Supabase 获取密码（更健壮的方式）
                 const { data, error } = await supabase
                     .from(SUPABASE_CONFIG.TABLES.CONFIG)
                     .select('value')
                     .eq('key', 'password')
                     .eq('type', 'auth')
-                    .maybeSingle();  // 使用 maybeSingle 而不是 single
+                    .maybeSingle();
                 
                 console.log('密码查询结果:', data, error);
                 
@@ -1528,9 +1542,7 @@
                     throw error;
                 }
                 
-                // 如果没有密码记录，或者密码正确
                 if (!data || (data && password === data.value)) {
-                    // 如果没有密码记录，创建它
                     if (!data) {
                         console.log('首次使用或密码丢失，创建密码...');
                         const { error: insertError } = await supabase
@@ -1575,7 +1587,6 @@
             appContent.style.display = 'block';
             isAuthenticated = true;
             
-            // 先加载用户组，再加载项目数据
             loadUserGroups().then(() => {
                 loadData();
                 setupRealtimeSubscription();
@@ -1589,7 +1600,6 @@
             try {
                 showToast('正在从 Supabase 加载数据...', 'info');
                 
-                // 从 Supabase 加载项目数据
                 const { data, error } = await supabase
                     .from(SUPABASE_CONFIG.TABLES.PROJECTS)
                     .select('*')
@@ -1622,13 +1632,11 @@
                 
                 console.log(`加载了 ${projects.length} 个项目，其中 ${projects.filter(p => p.reminderEnabled).length} 个启用了推送`);
                 
-                // 检查是否需要重置
                 checkMonthlyReset();
                 
                 showToast(`成功加载 ${projects.length} 个项目`, 'success', 2000);
                 renderProjects();
                 
-                // 加载完成后设置所有提醒
                 setTimeout(() => {
                     restoreAllReminders();
                     updatePushStatus();
@@ -1638,7 +1646,6 @@
                 console.error('数据加载失败:', error);
                 showToast('数据加载失败: ' + error.message, 'error');
                 
-                // 尝试从本地恢复
                 const localData = localStorage.getItem('supabase_backup');
                 if (localData) {
                     try {
@@ -1668,7 +1675,6 @@
                 console.log('保存数据，修改项目数:', modifiedProjects.size);
                 console.log('修改的项目:', Array.from(modifiedProjects.values()).map(p => p.name));
                 
-                // 批量更新
                 const updates = Array.from(modifiedProjects.values()).map(project => ({
                     id: project.id,
                     name: project.name,
@@ -1686,7 +1692,6 @@
                     updated_at: new Date().toISOString()
                 }));
                 
-                // Supabase 批量 upsert
                 const { data, error } = await supabase
                     .from(SUPABASE_CONFIG.TABLES.PROJECTS)
                     .upsert(updates, { 
@@ -1700,11 +1705,8 @@
                 }
                 
                 console.log('保存成功，清空修改记录');
-                
-                // 清空修改记录
                 modifiedProjects.clear();
                 
-                // 保存用户组修改
                 if (modifiedUserGroups.size > 0) {
                     const userGroupUpdates = Array.from(modifiedUserGroups.values()).map(group => ({
                         id: group.id,
@@ -1726,7 +1728,6 @@
                     }
                 }
                 
-                // 创建本地备份
                 localStorage.setItem('supabase_backup', JSON.stringify(projects));
                 localStorage.setItem('user_groups_backup', JSON.stringify(userGroups));
                 localStorage.setItem('last_sync_time', new Date().toISOString());
@@ -1734,8 +1735,6 @@
                 return true;
             } catch (error) {
                 console.error('数据保存失败:', error);
-                
-                // 失败时保存到本地
                 localStorage.setItem('supabase_backup', JSON.stringify(projects));
                 localStorage.setItem('user_groups_backup', JSON.stringify(userGroups));
                 showToast('保存失败，数据已保存到本地: ' + error.message, 'error');
@@ -1805,7 +1804,6 @@
             const currentDay = now.getDate();
             
             try {
-                // 从服务器获取最后一次重置信息
                 const { data: serverResetData, error } = await supabase
                     .from(SUPABASE_CONFIG.TABLES.CONFIG)
                     .select('value')
@@ -1838,20 +1836,16 @@
                     最后重置: lastResetInfo.year ? `${lastResetInfo.year}年${lastResetInfo.month}月${lastResetInfo.date}日` : '从未重置'
                 });
                 
-                // 判断是否需要重置
                 let shouldReset = false;
                 
-                // 情况1：今天是1号，且本月未重置过
                 if (currentDay === 1) {
                     if (!(lastResetYear === currentYear && lastResetMonth === currentMonth)) {
                         shouldReset = true;
                     }
                 }
-                // 情况2：不是1号，但是上个月的重置未执行
                 else if (lastResetMonth !== currentMonth && lastResetMonth !== currentMonth - 1) {
                     shouldReset = true;
                 }
-                // 情况3：首次使用或重置记录丢失
                 else if (!lastResetInfo.year || !lastResetInfo.month) {
                     shouldReset = true;
                 }
@@ -1877,7 +1871,6 @@
                 });
                 
                 if (resetCount > 0) {
-                    // 更新重置记录到服务器
                     const newResetInfo = {
                         year: currentYear,
                         month: currentMonth,
@@ -1888,7 +1881,6 @@
                         source: window.location.hostname || 'unknown'
                     };
                     
-                    // 保存到服务器
                     const { error: saveError } = await supabase
                         .from(SUPABASE_CONFIG.TABLES.CONFIG)
                         .upsert([{ 
@@ -1905,12 +1897,9 @@
                         showToast(`已重置 ${resetCount} 个标签`, 'success');
                     }
                     
-                    // 保存项目数据到服务器
                     await saveData();
-                    
                     console.log(`重置了 ${resetCount} 个标签`);
                 } else {
-                    // 即使没有重置，也更新记录（避免重复检查）
                     const newResetInfo = {
                         year: currentYear,
                         month: currentMonth,
@@ -1921,7 +1910,6 @@
                         source: window.location.hostname || 'unknown'
                     };
                     
-                    // 保存到服务器
                     const { error: saveError } = await supabase
                         .from(SUPABASE_CONFIG.TABLES.CONFIG)
                         .upsert([{ 
@@ -2046,10 +2034,8 @@
         }
 
         function getSortedProjects() {
-            // 根据当前排序模式获取相应的项目
             switch (currentSortMode) {
                 case 'expired':
-                    // 显示已结束的项目
                     const expiredProjects = projects.filter(p => checkIsExpired(p));
                     expiredProjects.forEach(p => {
                         p.nextScheduledTime = calculateNextScheduledTime(p);
@@ -2078,7 +2064,7 @@
                     activeIncomplete.sort((a, b) => a.progressInfo.progress - b.progressInfo.progress);
                     return activeIncomplete;
                     
-                default: // 'default'
+                default:
                     const activeProjects = projects.filter(p => !checkIsExpired(p));
                     activeProjects.forEach(p => {
                         p.nextScheduledTime = calculateNextScheduledTime(p);
@@ -2115,7 +2101,6 @@
             const activeProjects = projects.filter(p => !checkIsExpired(p));
             const pushEnabledProjects = projects.filter(p => p.reminderEnabled).length;
             const { totalCompleted, totalTasks } = calculateTotalStats();
-            
             const completionRate = totalTasks > 0 ? (totalCompleted / totalTasks * 100).toFixed(1) : 0;
 
             container.innerHTML = `
@@ -2244,10 +2229,8 @@
             document.getElementById('project-id').value = '';
             userTags = [];
             
-            // 重置推送字段显示
             toggleReminderFields();
             
-            // 更新用户组下拉框
             const groupSelect = document.getElementById('user-group-select');
             if (groupSelect) {
                 groupSelect.innerHTML = `
@@ -2271,19 +2254,15 @@
                     document.getElementById('project-hour').value = project.rule.hour;
                     document.getElementById('project-reset').value = project.resetType || 'monthly';
                     
-                    // 设置推送字段
                     document.getElementById('enable-reminder').checked = project.reminderEnabled || false;
                     document.getElementById('reminder-minutes').value = project.reminderMinutes || 15;
                     
-                    // 设置用户组和标签
                     userTags = [...(project.userTags || ['默认'])];
                     
-                    // 如果有用户组ID，选中对应的用户组
                     if (project.userGroupId && groupSelect) {
                         groupSelect.value = project.userGroupId;
                         onUserGroupChange();
                     } else if (groupSelect) {
-                        // 查找包含这些标签的用户组
                         const matchingGroup = userGroups.find(group => 
                             group.tags.length === userTags.length && 
                             group.tags.every(tag => userTags.includes(tag))
@@ -2319,7 +2298,6 @@
                         document.getElementById('project-end').value = project.endDate;
                     }
                     
-                    // 更新推送字段显示
                     toggleReminderFields();
                     toggleScheduleFields();
                 }
@@ -2327,7 +2305,6 @@
                 document.getElementById('form-title').textContent = '添加新项目';
                 document.getElementById('delete-btn').style.display = 'none';
                 
-                // 设置默认用户组
                 if (groupSelect) {
                     const defaultGroup = userGroups.find(g => g.isDefault);
                     if (defaultGroup) {
@@ -2341,11 +2318,9 @@
                     }
                 }
                 
-                // 设置默认值为自定义固定次数
                 document.getElementById('project-total').value = 'custom';
                 document.getElementById('project-custom-total').value = '1';
                 
-                // 设置推送默认值
                 document.getElementById('enable-reminder').checked = false;
                 document.getElementById('reminder-minutes').value = '15';
                 
@@ -2373,11 +2348,9 @@
             const resetType = document.getElementById('project-reset').value;
             const endDate = document.getElementById('project-end').value || null;
             
-            // 获取推送设置
             const reminderEnabled = document.getElementById('enable-reminder').checked;
             const reminderMinutes = parseInt(document.getElementById('reminder-minutes').value) || 15;
             
-            // 获取用户组信息
             const groupSelect = document.getElementById('user-group-select');
             const selectedGroupId = groupSelect.value;
             
@@ -2402,18 +2375,15 @@
             });
             
             if (id) {
-                // 更新现有项目
                 const index = projects.findIndex(p => p.id === id);
                 if (index !== -1) {
                     const oldProject = projects[index];
                     const tagProgress = { ...oldProject.tagProgress };
                     
-                    // 更新标签进度
                     userTags.forEach(tag => {
                         if (!tagProgress[tag]) tagProgress[tag] = 0;
                     });
                     
-                    // 移除不再存在的标签的进度
                     Object.keys(tagProgress).forEach(tag => {
                         if (!userTags.includes(tag)) delete tagProgress[tag];
                     });
@@ -2438,11 +2408,9 @@
                     console.log('更新项目成功:', updatedProject);
                     showToast(`已更新: ${name}`, 'success');
                     
-                    // 设置或更新提醒
                     scheduleReminder(updatedProject);
                 }
             } else {
-                // 创建新项目
                 const newId = generateUniqueId();
                 const tagProgress = {};
                 userTags.forEach(tag => tagProgress[tag] = 0);
@@ -2469,11 +2437,9 @@
                 console.log('创建新项目成功:', newProject);
                 showToast(`已添加: ${name}`, 'success');
                 
-                // 设置新提醒
                 scheduleReminder(newProject);
             }
             
-            // 立即保存到Supabase
             const saveSuccess = await saveData();
             if (!saveSuccess) {
                 showToast('保存到云端失败，数据仅保存在本地', 'error');
@@ -2490,13 +2456,11 @@
                 try {
                     const project = projects.find(p => p.id === id);
                     
-                    // 清除定时器
                     if (reminderTimers[id]) {
                         clearTimeout(reminderTimers[id]);
                         delete reminderTimers[id];
                     }
                     
-                    // 从 Supabase 删除
                     const { error } = await supabase
                         .from(SUPABASE_CONFIG.TABLES.PROJECTS)
                         .delete()
@@ -2504,14 +2468,12 @@
                     
                     if (error) throw error;
                     
-                    // 从本地数据删除
                     projects = projects.filter(p => p.id !== id);
                     modifiedProjects.delete(id);
                     
                     hideProjectForm();
                     renderProjects();
                     
-                    // 更新本地备份
                     localStorage.setItem('supabase_backup', JSON.stringify(projects));
                     
                     showToast(`已删除: ${project.name}`, 'info');
@@ -2565,7 +2527,6 @@
             if (!statusDiv) return;
             
             try {
-                // 测试连接
                 const { data, error } = await supabase
                     .from(SUPABASE_CONFIG.TABLES.PROJECTS)
                     .select('count')
@@ -2654,7 +2615,6 @@
                         if (confirm(`确定要导入 ${importedData.projects.length} 个项目吗？当前数据将被替换。`)) {
                             showToast('正在导入数据...', 'info');
                             
-                            // 清空现有数据
                             const { error: deleteError } = await supabase
                                 .from(SUPABASE_CONFIG.TABLES.PROJECTS)
                                 .delete()
@@ -2662,7 +2622,6 @@
                             
                             if (deleteError) throw deleteError;
                             
-                            // 导入用户组
                             if (importedData.userGroups && Array.isArray(importedData.userGroups)) {
                                 const { error: deleteGroupsError } = await supabase
                                     .from(SUPABASE_CONFIG.TABLES.USER_GROUPS)
@@ -2686,7 +2645,6 @@
                                 if (groupsError) throw groupsError;
                             }
                             
-                            // 转换并导入项目数据
                             const supabaseData = importedData.projects.map(project => ({
                                 name: project.name,
                                 description: project.description,
@@ -2709,14 +2667,12 @@
                             
                             if (error) throw error;
                             
-                            // 恢复设置
                             if (importedData.settings) {
                                 if (importedData.settings.lastSync) {
                                     localStorage.setItem('last_sync_time', importedData.settings.lastSync);
                                 }
                             }
                             
-                            // 重新加载数据
                             await loadUserGroups();
                             await loadData();
                             showToast(`成功导入 ${importedData.projects.length} 个项目`, 'success');
@@ -2770,7 +2726,6 @@
                                     projects.push(newProject);
                                     renderProjects();
                                     
-                                    // 设置新提醒
                                     if (newProject.reminderEnabled) {
                                         scheduleReminder(newProject);
                                     }
@@ -2800,7 +2755,6 @@
                                     
                                     renderProjects();
                                     
-                                    // 更新提醒
                                     if (payload.new.reminder_enabled) {
                                         scheduleReminder(projects[index]);
                                     } else if (reminderTimers[payload.new.id]) {
@@ -2816,7 +2770,6 @@
                                 projects = projects.filter(p => p.id !== projectId);
                                 renderProjects();
                                 
-                                // 清除定时器
                                 if (reminderTimers[projectId]) {
                                     clearTimeout(reminderTimers[projectId]);
                                     delete reminderTimers[projectId];
@@ -2837,18 +2790,15 @@
         function initApp() {
             console.log('应用初始化开始...');
             
-            // 检查浏览器控制台
             console.log('检查DOM元素...');
             console.log('登录容器:', document.getElementById('login-container'));
             console.log('应用内容:', document.getElementById('app-content'));
             
-            // 尝试初始化 Supabase
             try {
                 if (typeof window.supabase !== 'undefined') {
                     console.log('Supabase库已加载');
                 } else {
                     console.error('Supabase库未加载');
-                    // 尝试动态加载
                     const script = document.createElement('script');
                     script.src = 'https://unpkg.com/@supabase/supabase-js@2';
                     script.onload = function() {
@@ -2873,7 +2823,6 @@
             console.log('初始化Supabase后...');
             
             try {
-                // 初始化 Supabase 客户端
                 window.supabase = window.supabase.createClient(
                     SUPABASE_CONFIG.URL,
                     SUPABASE_CONFIG.ANON_KEY
@@ -2895,9 +2844,7 @@
             
             if (savedPassword) {
                 console.log('发现保存的密码，尝试自动登录...');
-                // 显示登录表单并预填密码
                 document.getElementById('password-input').value = savedPassword;
-                // 自动验证密码
                 setTimeout(() => checkPassword(), 500);
             } else {
                 console.log('无保存的密码，显示登录表单');
@@ -2905,25 +2852,20 @@
                 appContent.style.display = 'none';
             }
             
-            // 添加回车键登录支持
             document.getElementById('password-input').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     checkPassword();
                 }
             });
 
-            // 确保自定义次数输入框初始状态正确
             toggleCustomTotal();
             toggleReminderFields();
             
-            // 检查 Supabase 连接状态
             setTimeout(checkSupabaseStatus, 1000);
         }
 
-        // 启动应用
         document.addEventListener('DOMContentLoaded', initApp);
         
-        // 如果DOMContentLoaded已经触发，直接初始化
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
             setTimeout(initApp, 100);
         }
